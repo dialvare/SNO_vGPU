@@ -30,6 +30,8 @@ The first part of the wizard will ask you for cluster details. Complete the foll
 - OpenShift version: in this case, *OpenShift 4.9.19*, the latest at time of writing.
 - Check the box *Install Single Node OpenShift (SNO)*.
 
+<img width="580" alt="Screenshot 2022-05-04 at 17 49 50" src="https://user-images.githubusercontent.com/98162884/166734230-fb96bd4b-0b6e-448e-945a-ef8b62b19e66.png">
+
 When finished, we can jump into the host discovery section by clicking **Next**. There, be sure to check the **Install OpenShift Virtualization** box (although this can be enabled post-installation if desired) and then click the **Add hosts** button.
 
 The purpose of this step is to generate a discovery ISO to boot the node and install OpenShift there. There are two different options. If you want to boot the host from a USB drive or PXE, select **Full image file**. Otherwise, to boot using virtual media select **Minimal image file** (note that your node will require internet access). We’ll use the second option. 
@@ -41,6 +43,8 @@ $ cat ~/.ssh/id_rsa.pub
 ```
 
 Then, click **Generate Discovery ISO** to get the URL and the command to download the image:
+
+<img width="433" alt="Screenshot 2022-05-04 at 17 55 37" src="https://user-images.githubusercontent.com/98162884/166737661-84d67eaf-4468-4775-8128-bfef64ebed28.png">
 
 Open a new terminal in the host machine and download the image by running the provided command. Once downloaded, mount the ISO image as virtual media (there are vendor specific options for this, so please seek the documentation for your respective hardware vendor) and set the host to automatically boot from that image. Then, power the system up.
 
@@ -60,6 +64,8 @@ On the left side of the web console, open the **Operators** tab and click **Oper
 - **Node Feature Discovery (NFD)**: click *Install* and use the default configuration provided. Once installed, select the NFD Operator and click on *Create Instance*. There, we’ll find different parameters we can configure. In this case, we are going to keep it by default, so click *Create*.
 
 Verify the installation finished correctly by checking the **Installed Operators** section under **Operators**. You’ll see something like this: 
+
+<img width="636" alt="Screenshot 2022-05-04 at 17 57 37" src="https://user-images.githubusercontent.com/98162884/166738864-40fa8538-bac0-4ef7-8741-90e03cd08abf.png">
 
 ## Enable IOMMU
 An input–output memory management unit (IOMMU) can be used in guest systems, such as VMs to use hardware that is not specifically made for virtualization. Graphic cards use direct memory access (DMA) to manage memory directly. In a virtual environment, all memory addresses are re-mapped by the virtual machine software, which causes DMA devices to fail. The IOMMU handles this re-mapping, allowing the guest operating system to use the native device drivers installed. 
