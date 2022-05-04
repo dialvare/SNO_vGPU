@@ -50,6 +50,8 @@ In the Networking section, fill the **Select subnet** field by choosing the subn
 
 Single Node OpenShift installation can be monitored with the progress bar displayed. Once completed, you can spread out the installation section. There, you’ll find the *Web Console URL*, the admin user *kubeadmin* and the *password*. Access the web console by clicking on the **URL** and log in with the provided credentials. The web console Interface looks like this:
 
+<img width="1408" alt="Screenshot 2022-05-04 at 17 45 31" src="https://user-images.githubusercontent.com/98162884/166731770-f0a17ad4-5513-462e-b3ab-f43710e2f581.png">
+
 ## Install Operators
 To proceed with the configuration, two Operators from the OperatorHub in OpenShift are needed: **OpenShift Virtualization** and **Node Feature Discovery (NFD)**.
 
