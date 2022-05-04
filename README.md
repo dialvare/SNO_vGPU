@@ -485,7 +485,6 @@ For this demonstration, we’re going to use the **nvidia-22** option, so we’l
 
 ```
 # echo `uuidgen` > /sys/class/mdev_bus/0000:3e:00.0/mdev_supported_types/nvidia-22/create
-
 # echo `uuidgen` > /sys/class/mdev_bus/0000:3d:00.0/mdev_supported_types/nvidia-22/create
 ```
 
@@ -541,48 +540,46 @@ Allocatable:
 ## Create virtual machine
 At this point, the cluster configuration is complete and the node is ready to recognize and use the GPU. Therefore, we can deploy the virtual machine that is going to use the vGPU resource. As stated in the beginning of this blog, we are going to deploy a Fedora 35 VM using the wizard provided by the web console. 
 
-Navigate again to the web console and select the Workloads section on the left side of the page. There, select the Virtualization option. Then, you’ll see different tabs. Click on Virtual Machines and select Create Virtual Machine. Different operating systems will be shown. In this case, select Fedora 33+ VM and then click Next.
+Navigate again to the web console and select the **Workloads** section on the left side of the page. There, select the **Virtualization** option. Then, you’ll see different tabs. Click on **Virtual Machines** and select **Create Virtual Machine**. Different operating systems will be shown. In this case, select **Fedora 33+ VM** and then click **Next**.
 
-
-
-In the boot source section, at the bottom, select Customize Virtual Machine. Complete the following fields and then advance to the next sections by clicking Next:
+In the boot source section, at the bottom, select **Customize Virtual Machine**. Complete the following fields and then advance to the next sections by clicking **Next**:
 - Name: write your preferred name for the virtual machine.
-- Boot Source: select Import via URL (creates PVC).
-- URL: paste the URL of a qcow2 image that is accessible from the node. For example: https://download.fedoraproject.org/pub/fedora/linux/releases/35/Cloud/x86_64/images/Fedora-Cloud-Base-35-1.2.x86_64.qcow2
-- Flavor: choose the option Custom. Indicate 32 GiB of memory and 12 CPU cores.
-- Workload Type: keep the default option Server.
+- Boot Source: select *Import via URL (creates PVC)*.
+- URL: paste the URL of a *qcow2* image that is accessible from the node. For example: https://download.fedoraproject.org/pub/fedora/linux/releases/35/Cloud/x86_64/images/Fedora-Cloud-Base-35-1.2.x86_64.qcow2
+- Flavor: choose the option *Custom*. Indicate 32 GiB of memory and 12 CPU cores.
+- Workload Type: keep the default option *Server*.
 - User: complete the field with your preferred user name.
 - Password: complete the field with the password we’ll be using to log into the VM.
 - Hostname: write a hostname for the virtual machine.
-- Authorized SSH key: paste the SSH key stored in the ~/.ssh/id_rsa.pub file.
-- SSH access: make sure the Expose SSH access to this virtual machine box is checked.
-- Uncheck the Start virtual machine on creation box.
+- Authorized SSH key: paste the SSH key stored in the *~/.ssh/id_rsa.pub* file.
+- SSH access: make sure the *Expose SSH access to this virtual machine* box is checked.
+- Uncheck the *Start virtual machine on creation* box.
 
-Check if everything is properly configured and then click Create Virtual Machine. The VM provisioning will start. Select See virtual machine details to follow the VM deployment. Wait a few minutes until you see Status: Running:
+Check if everything is properly configured and then click **Create Virtual Machine**. The VM provisioning will start. Select **See virtual machine details** to follow the VM deployment. Wait a few minutes until you see *Status: Running*:
 
+Before accessing the VM we need to add the statements needed for passing the vGPU configured. Click on the VM name (in my case **fedora**) and you’ll see some information and graphics about the virtual machine status. Navigate to the **YAML** tab and add the following commands in the *devices* resource:
 
-
-Before accessing the VM we need to add the statements needed for passing the vGPU configured. Click on the VM name (in my case fedora) and you’ll see some information and graphics about the virtual machine status. Navigate to the YAML tab and add the following commands in the devices resource:
 ```
 devices:  
   gpus:
-      - deviceName: nvidia.com/GRID_M60_8Q
-        name: GRID_M60_8Q
+    - deviceName: nvidia.com/GRID_M60_8Q
+      name: GRID_M60_8Q
 ```
 
-When added, click the Save button and then Reload. To apply the new device configuration, in the upper-right corner, deploy the Actions section and select Start Virtual Machine.
+When added, click the **Save** button and then **Reload**. To apply the new device configuration, in the upper-right corner, deploy the **Actions** section and select **Start Virtual Machine**.
 
-Now, we can access the virtual machine from the OpenShift web console or from our terminal using ssh. We’re going to use this second option. Navigate to the Details tab. Scroll down to the User Credentials part and you’ll find something similar to this:
+Now, we can access the virtual machine from the OpenShift web console or from our terminal using *ssh*. We’re going to use this second option. Navigate to the **Details** tab. Scroll down to the *User Credentials* part and you’ll find something similar to this:
 
+Copy the *ssh* command provided, paste it into your terminal window, and you’ll be connected to the *fedora* virtual machine; this relies on simple nodeport access:
 
-
-Copy the ssh command provided, paste it into your terminal window, and you’ll be connected to the fedora virtual machine; this relies on simple nodeport access:
 ```
 $ ssh fedora@api.pemlab.rdu2.redhat.com -p 32142
+
 Last login: Wed Mar 30 04:08:20 2022 from 10.128.0.1
 ```
 
-To complete the configuration, as root user, check that the vGPU passed into the VM is listed there:
+To complete the configuration, as *root* user, check that the vGPU passed into the VM is listed there:
+
 ```
 $ sudo bash
 # lspci | grep NVIDIA
@@ -593,65 +590,62 @@ $ sudo bash
 ## Install drivers and applications in the VM
 Now, we can install the NVIDIA drivers in the virtual machine. An important point that we need to keep in mind is that, for the host we installed the vGPU drivers, but now, we need to download the GRID version for the guest. 
 
-Navigate to the official page of NVIDIA and download the proper GRID driver version in the virtual machine. In this case, we’ll use the NVIDIA-Linux-x86_64-510.47.03-grid.run file. Before running it, we also need to install all prerequisites to ensure the driver compilation and installation won’t fail:
+Navigate to the official [page](https://www.nvidia.com/en-us/drivers/vgpu-software-driver/) of NVIDIA and download the proper GRID driver version in the virtual machine. In this case, we’ll use the *NVIDIA-Linux-x86_64-510.47.03-grid.run* file. Before running it, we also need to install all prerequisites to ensure the driver compilation and installation won’t fail:
+
 ```
 $ sudo -i
-
 # dnf groupinstall “Development Tools”
-
 # dnf install elfutils-libelf-devel libglvnd-devel
 ```
 
-Once installed all needed libraries, disable the nouveau driver permanently, modifying the GRUB menu and then, reboot the node:
+Once installed all needed libraries, disable the *nouveau* driver permanently, modifying the GRUB menu and then, reboot the node:
+
 ```
 # grub2-editenv - set “$(grub2-editenv - list | grep kernelopts) nouveau.modeset=0”
-
 # reboot
 ```
 
 Access to the VM again and run the following command to stop the Xorg server (if it was running) and switch to text mode:
+
 ```
 $ sudo -i
-
 # systemctl isolate multi-user.target
 ```
 
 Now, we can start with the driver installation. Run the GRID driver file:
+
 ```
 # bash NVIDIA-Linux-x86_64-510.47.03-grid.run
 ```
 
-The installation screen will be shown, asking to register the kernel with DKMS. Select Yes:
+The installation screen will be shown, asking to register the kernel with DKMS. Select **Yes**:
 
+When the DKMS kernel module installation finishes, we’ll see the next screen. Select **Yes** too:
 
+The installation process will continue. When finished, select **No** when asked about allowing automatic *Xorg* backup. We’re not going to use it for this demo. Once the installation is complete, select **OK** to proceed. Then, reboot the virtual machine again to apply the changes:
 
-When the DKMS kernel module installation finishes, we’ll see the next screen. Select Yes too:
-
-
-The installation process will continue. When finished, select No when asked about allowing automatic Xorg backup. We’re not going to use it for this demo. Once the installation is complete, select OK to proceed. Then, reboot the virtual machine again to apply the changes:
 ```
 # reboot
 ```
 
-Now, we can install the NVIDIA CUDA Toolkit, which provides some graphical examples to test the vGPU. Firstly, we need to check the Toolkit version compatible with our driver version here. For the driver we installed, we need to download the NVIDIA CUDA Toolkit 11.6.2 here. Access the virtual machine and paste the download command provided:
+Now, we can install the NVIDIA CUDA Toolkit, which provides some graphical examples to test the vGPU. Firstly, we need to check the Toolkit version compatible with our driver version [here](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html). For the driver we installed, we need to download the *NVIDIA CUDA Toolkit 11.6.2* [here](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=RHEL&target_version=8&target_type=runfile_local). Access the virtual machine and paste the download command provided:
+
 ```
 $ wget https://developer.download.nvidia.com/compute/cuda/11.6.2/local_installers/cuda_11.6.2_510.47.03_linux.run
 ```
 
 Run the file to install it: 
+
 ```
 $ sudo sh cuda_11.6.2_510.47.03_linux.run
 ```
 
-You will see the Toolkit License Agreement window. Write accept:
+You will see the Toolkit License Agreement window. Write **accept**:
 
+**Important**: The CUDA installation will automatically opt to install the NVIDIA driver, but this will be the non-GRID driver, which is not what we need, and will likely break the installation if we proceed with it. In a previous step we installed the correct GRID driver and therefore it’s already installed and loaded, so we need to **uncheck** the *Driver* box. Then navigate to the **Install** option:
 
+When finished, make sure that the variables *$PATH* includes */usr/local/cuda-11.6/bin* and *$LD_LIBRARY_PATH* includes */usr/local/cuda-11.6/lib64*. Run the following commands:
 
-Important: The CUDA installation will automatically opt to install the NVIDIA driver, but this will be the non-GRID driver, which is not what we need, and will likely break the installation if we proceed with it. In a previous step we installed the correct GRID driver and therefore it’s already installed and loaded, so we need to uncheck the Driver box. Then navigate to the Install option:
-
-
-
-When finished, make sure that the variables $PATH includes /usr/local/cuda-11.6/bin and $LD_LIBRARY_PATH includes /usr/local/cuda-11.6/lib64. Run the following commands:
 ```
 $ echo $PATH
 
@@ -663,18 +657,20 @@ $ echo $LD_LIBRARY_PATH
 ```
 
 Once the installation is complete, we can check the configuration by running the following command. Make sure you don’t see any N/A value in the header:
+
 ```
 $ nvidia-smi
 ```
 
 
+At this point, we’re seeing that everything is configured correctly. Now we can fire up our preferred applications to test the vGPU acceleration. CUDA Toolkit also provides some examples to test the GPU card. Download the Samples from the official GitHub repository [here](https://github.com/NVIDIA/cuda-samples).  Run the next command:
 
-At this point, we’re seeing that everything is configured correctly. Now we can fire up our preferred applications to test the vGPU acceleration. CUDA Toolkit also provides some examples to test the GPU card. Download the Samples from the official GitHub repository here.  Run the next command:
 ```
 $ git clone https://github.com/NVIDIA/cuda-samples.git
 ```
 
 Before launching the applications we’re going to install some dependencies and libraries:
+
 ```
 $ dnf install gcc-c++ mesa-libGLU-devel libX11-devel libXi-devel libXmu-devel freeglut freeglut-devel -y
 ```
