@@ -10,7 +10,7 @@ Nevertheless, depending on the case, the entire GPU is not always needed. Typica
 The objective of this blog is to dive into the process of setting up a cluster using a Single Node OpenShift instance on bare metal,  and to configure and pass an NVIDIA GPU card as a vGPU (i.e. just a slice of the overall card) into a Fedora VM. Then, we’re going to test the performance by running different applications that make use of that vGPU. To finish off, we’ll compare the previous results with the ones obtained when the vGPU is not used, where we’ll simply rely on the CPU instead. 
 
 ## Node specifications
-As mentioned previously, we’re going to deploy a Single Node OpenShift instance using the Assisted Installer for OpenShift 4.9.19 on a bare metal host. In this particular case, we’re going to use a single machine, but this blog can be followed for other topologies, like full-scale production clusters and compact clusters (three nodes). The node used in our example has the following specifications:
+As mentioned previously, we’re going to deploy a Single Node OpenShift instance using the [Assisted Installer](https://cloud.redhat.com/blog/how-to-use-the-openshift-assisted-installer) for OpenShift 4.9.19 on a bare metal host. In this particular case, we’re going to use a single machine, but this blog can be followed for other topologies, like full-scale production clusters and compact clusters (three nodes). The node used in our example has the following specifications:
 - 2x Intel Xeon Silver 4116, 2.1G, 12C/24T
 - 4x 480GB SSD SATA (RAID 10)
 - 128GB Memory
@@ -19,41 +19,36 @@ As mentioned previously, we’re going to deploy a Single Node OpenShift instanc
 ## Install Single Node OpenShift
 Single Node OpenShift offers both control and worker capabilities in a single node, reducing the footprint and allowing it to run in more constrained environments. We’ll use the [Assisted Installer](https://console.redhat.com/openshift/assisted-installer/clusters/) which simplifies the deployment of OpenShift on bare metal hardware. Let’s start with the configuration from scratch.
 
-Firstly, we need to navigate to the Assisted Installer page via the OpenShift Cluster Manager console and login with our Red Hat account. After logging in, click the Create button. Then, choose the Datacenter tab as target, and select Create Cluster. 
+Firstly, we need to navigate to the Assisted Installer page via the OpenShift Cluster Manager console and login with our Red Hat account. After logging in, click the **Create** button. Then, choose the **Datacenter** tab as target, and select **Create Cluster**. 
 
 The first part of the wizard will ask you for cluster details. Complete the following fields:
 - Cluster name: preferred cluster name.
-- Base domain: subdomain to match DNS. Please, refer to the OpenShift networking documentation to pre-configure your cluster’s networking, including:
+- Base domain: subdomain to match DNS. Please, refer to the [OpenShift networking documentation](https://docs.openshift.com/container-platform/4.9/networking/understanding-networking.html) to pre-configure your cluster’s networking, including:
   - DHCP or static IP Addresses.
   - Network ports.
   - DNS.
-- OpenShift version: in this case, OpenShift 4.9.19, the latest at time of writing.
-- Check the box Install Single Node OpenShift (SNO).
+- OpenShift version: in this case, *OpenShift 4.9.19*, the latest at time of writing.
+- Check the box *Install Single Node OpenShift (SNO)*.
 
+When finished, we can jump into the host discovery section by clicking **Next**. There, be sure to check the **Install OpenShift Virtualization** box (although this can be enabled post-installation if desired) and then click the **Add hosts** button.
 
-When finished, we can jump into the host discovery section by clicking Next. There, be sure to check the Install OpenShift Virtualization box (although this can be enabled post-installation if desired) and then click the Add hosts button.
+The purpose of this step is to generate a discovery ISO to boot the node and install OpenShift there. There are two different options. If you want to boot the host from a USB drive or PXE, select **Full image file**. Otherwise, to boot using virtual media select **Minimal image file** (note that your node will require internet access). We’ll use the second option. 
 
-The purpose of this step is to generate a discovery ISO to boot the node and install OpenShift there. There are two different options. If you want to boot the host from a USB drive or PXE, select Full image file. Otherwise, to boot using virtual media select Minimal image file (note that your node will require internet access). We’ll use the second option. 
-
-Finally, paste your SSH public key, which is used to ssh to deployed nodes. It is typically stored in the .ssh folder of your home directory and ends in .pub. In this case the corresponding file would be: ~/.ssh/id_rsa.pub. You can get the key by running this command in your terminal:
+Finally, paste your **SSH public key**, which is used to ssh to deployed nodes. It is typically stored in the .ssh folder of your home directory and ends in .pub. In this case the corresponding file would be: *~/.ssh/id_rsa.pub*. You can get the key by running this command in your terminal:
 
 ```
 $ cat ~/.ssh/id_rsa.pub
 ```
 
-Then, click Generate Discovery ISO to get the URL and the command to download the image:
-
-
+Then, click **Generate Discovery ISO** to get the URL and the command to download the image:
 
 Open a new terminal in the host machine and download the image by running the provided command. Once downloaded, mount the ISO image as virtual media (there are vendor specific options for this, so please seek the documentation for your respective hardware vendor) and set the host to automatically boot from that image. Then, power the system up.
 
-Back on the Assisted Installer UI, the node will appear automatically. It may take a couple of minutes before it’s ready. Once it appears, you can change the node name if necessary. To continue with the installation, click Next.
+Back on the Assisted Installer UI, the node will appear automatically. It may take a couple of minutes before it’s ready. Once it appears, you can change the node name if necessary. To continue with the installation, click **Next**.
 
-In the Networking section, fill the Select subnet field by choosing the subnet you want to use; the available subnets should be automatically detected. Before proceeding, check that the Use the same host discovery SSH key box is selected. Then, click Next, review all the settings and finally select Install Cluster.
+In the Networking section, fill the **Select subnet** field by choosing the subnet you want to use; the available subnets should be automatically detected. Before proceeding, check that the **Use the same host discovery SSH key** box is selected. Then, click **Next**, review all the settings and finally select **Install Cluster**.
 
-Single Node OpenShift installation can be monitored with the progress bar displayed. Once completed, you can spread out the installation section. There, you’ll find the Web Console URL, the admin user kubeadmin and the password. Access the web console by clicking on the URL and log in with the provided credentials. The web console Interface looks like this:
-
-
+Single Node OpenShift installation can be monitored with the progress bar displayed. Once completed, you can spread out the installation section. There, you’ll find the *Web Console URL*, the admin user *kubeadmin* and the *password*. Access the web console by clicking on the **URL** and log in with the provided credentials. The web console Interface looks like this:
 
 ## Install Operators
 To proceed with the configuration, two Operators from the OperatorHub in OpenShift are needed: OpenShift Virtualization and Node Feature Discovery (NFD).
