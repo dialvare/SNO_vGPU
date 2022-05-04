@@ -37,8 +37,9 @@ The purpose of this step is to generate a discovery ISO to boot the node and ins
 
 Finally, paste your SSH public key, which is used to ssh to deployed nodes. It is typically stored in the .ssh folder of your home directory and ends in .pub. In this case the corresponding file would be: ~/.ssh/id_rsa.pub. You can get the key by running this command in your terminal:
 
+```
 $ cat ~/.ssh/id_rsa.pub
-
+```
 
 Then, click Generate Discovery ISO to get the URL and the command to download the image:
 
@@ -54,43 +55,46 @@ Single Node OpenShift installation can be monitored with the progress bar displa
 
 
 
-Install Operators
+## Install Operators
 To proceed with the configuration, two Operators from the OperatorHub in OpenShift are needed: OpenShift Virtualization and Node Feature Discovery (NFD).
 
 On the left side of the web console, open the Operators tab and click OperatorHub. There, we can search both operators filtering by name:
-OpenShift Virtualization: This operator is installed during SNO deployment when checking the Install OpenShift Virtualization box. The status should be Succeed. If not, click Install.
-Node Feature Discovery (NFD): click Install and use the default configuration provided. Once installed, select the NFD Operator and click on Create Instance. There, we’ll find different parameters we can configure. In this case, we are going to keep it by default, so click Create.
+- OpenShift Virtualization: This operator is installed during SNO deployment when checking the Install OpenShift Virtualization box. The status should be Succeed. If not, click Install.
+- Node Feature Discovery (NFD): click Install and use the default configuration provided. Once installed, select the NFD Operator and click on Create Instance. There, we’ll find different parameters we can configure. In this case, we are going to keep it by default, so click Create.
 
 Verify the installation finished correctly by checking the Installed Operators section under Operators. You’ll see something like this: 
 
 
-Enable IOMMU
+## Enable IOMMU
 An input–output memory management unit (IOMMU) can be used in guest systems, such as VMs to use hardware that is not specifically made for virtualization. Graphic cards use direct memory access (DMA) to manage memory directly. In a virtual environment, all memory addresses are re-mapped by the virtual machine software, which causes DMA devices to fail. The IOMMU handles this re-mapping, allowing the guest operating system to use the native device drivers installed. 
 
 To connect with the OpenShift cluster, navigate to the upper-right corner of the web console and click on kube:admin. Choose the option Copy login command. In the new browser tab, select Display Token and paste the Log in with this token command in your terminal:
 
+```
 $ oc login --token=<sha256_token> --server=<server_url> 
-
+```
 
 Once connected, the first step is enabling the IOMMU driver on the worker nodes with a GPU card. In this case, we have a single node:
 
+```
 $ oc get nodes
 
-NAME                                                STATUS              ROLES                    AGE          VERSION
-r740.pemlab.rdu2.redhat.com           Ready                 master,worker          16d            v1.22.3+2cb6068
-
+NAME                                  STATUS                ROLES                    AGE            VERSION
+r740.pemlab.rdu2.redhat.com           Ready                 master,worker            16d            v1.22.3+2cb6068
+```
 
 Now, we can create the MachineConfig object to identify the kernel argument and enable the IOMMU driver, first apply a new label to indicate that this node has GPU by running the following command, we’ll tell the MachineConfig to look for nodes with this label:
 
+```
 $ oc label nodes r740.pemlab.rdu2.redhat.com hasGpu=true 
 
 node/r740.pemlab.rdu2.redhat.com labeled
-
+```
 
 Now, apply the MachineConfig object which will only be applied in the node with GPU, labeled previously:
 
+```
 $ cat << EOF > ~/100-master-kernel-arg-iommu.yaml
-
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
@@ -104,25 +108,27 @@ spec:
   kernelArguments:
       - intel_iommu=on
 EOF
+```
 
 
 If you’re using AMD hardware, note that you’ll need to change the intel_iommu=on statement to  amd_iommu=on.
 
 The last step to complete the IOMMU configuration is to apply the MachineConfig to the cluster. This action will reboot the node labeled before:
-
+```
 $ oc create -f ~/100-master-kernel-arg-iommu.yaml
 
 machineconfig.machineconfiguration.openshift.io/100-master-iommu created
-
+```
 
 Wait for the node where the MachineConfig is applied to reboot. Then, we can continue onto the next step.
-Create Hostpath Provisioning
+
+## Create Hostpath Provisioning
 Pods and containers are ephemeral by nature and therefore, by default, so is their storage. Nevertheless, OpenShift provides different options in case persistent storage is needed. In this blog, we are going to use HostPath provisioning local storage. Following these steps, we can configure and use local storage in virtual machines.   
 
 Firstly, we need to generate the MachineConfig object to set up our worker node in the cluster. A new unit file will be deployed in the worker node. This will create the new directory where the data will be stored:
 
+```
 $ cat << EOF | oc apply -f -
-
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
@@ -151,27 +157,26 @@ spec:
           enabled: true
           name: hostpath-provisioner.service
 EOF
-
+```
 
 You should verify that the MachineConfig was created correctly:
-
+```
 $ oc get machineconfig 50-set-selinux-for-hostpath-provisioner-worker
 
 NAME                                                      GENERATEDBYCONTROLLER     IGNITIONVERSION   AGE 
 50-set-selinux-for-hostpath-provisioner-worker                                                2.2.0                           7d5h
-
+```
 
 And it is also important to check that the MachineConfig has been applied in the worker node after rebooting automatically. When the node comes back and the API is available again, run the command until True is shown:
-
+```
 $ oc get machineconfigpool worker -o=jsonpath="{.status.conditions[?(@.type=='Updated')].status}{\"\n\"}"
 
 True
-
+```
 
 After making sure our worker node is properly configured, we can set up the HostPathProvisioner object. The following lines indicate the path that is going to be used for storage:
-
+```
 $ cat << EOF | oc apply -f -
-
 apiVersion: hostpathprovisioner.kubevirt.io/v1beta1
 kind: HostPathProvisioner
 metadata:
@@ -182,12 +187,11 @@ spec:
     path: "/var/hpvolumes"
     useNamingPrefix: false
 EOF
-
+```
 
 Then, we create a new StorageClass to be used by the host path provisioner. This StorageClass has a provisioner, so persistent volumes are going to be created dynamically: 
-
+```
 $ cat << EOF | oc apply -f -
-
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -196,36 +200,35 @@ provisioner: kubevirt.io/hostpath-provisioner
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 EOF
-
+```
 
 Lastly, before moving on to the next steps, we should confirm that the StorageClass was created correctly:
-
+```
 $ oc get sc hostpath-provisioner
 
-NAME                           PROVISIONER                              RECLAIMPOLICY      VOLUMEBINDINGMODE     ALLOWVOLUMEEXPANSION     AGE
-hostpath-provisioner     kubevirt.io/hostpath-provisioner     Delete                         WaitForFirstConsumer          false                                              6d
+NAME                     PROVISIONER                          RECLAIMPOLICY         VOLUMEBINDINGMODE        ALLOWVOLUMEEXPANSION     AGE
+hostpath-provisioner     kubevirt.io/hostpath-provisioner     Delete                WaitForFirstConsumer     false                    6d
+```
 
-
-Apply the NVIDIA driver
+## Apply the NVIDIA driver
 At this point, the cluster is configured and ready, so we can go ahead and focus on setting up the node to detect the NVIDIA GPU. The first task we have to do is to download the drivers needed for our GPU card from the NVIDIA official page. For this blogpost, I’m going to use the NVIDIA-Linux-x86_64-510.47.03-vgpu-kvm.run driver. These vGPU-KVM drivers are supplied via the NVIDIA customer portal and are not supplied by Red Hat.
 
 We create a new folder where all the files will be placed:
-
+```
 $ mkdir vgpu && cd vgpu
-
+```
 
 Before continuing, we also need to obtain the driver-toolkit image that our cluster is currently using. The Driver Toolkit is a base image on which you can build drivers and contains the kernel packages commonly required as dependencies to build or install kernel modules on the host. We can check it by running this command:
-
+```
 $ oc adm release info --image-for=driver-toolkit
 
 quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:ee885e4cfef83fc2d3c34fe04afb4986b957f740fb4dc13bf0358daab57e12ba
-
+```
 
 In order to load the NVIDIA drivers into the kernel, the first step would be to create the Podman Containerfile for building the image, specifying the drivers file downloaded and the driver-toolkit image name previously obtained: 
 
-
+```
 $ cat << EOF > ~/vgpu/Containerfile
-
 FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:ee885e4cfef83fc2d3c34fe04afb4986b957f740fb4dc13bf0358daab57e12ba
 ARG NVIDIA_INSTALLER_BINARY
 ENV NVIDIA_INSTALLER_BINARY=${NVIDIA_INSTALLER_BINARY:-NVIDIA-Linux-x86_64-510.47.03-vgpu-kvm.run}
@@ -240,13 +243,12 @@ ADD entrypoint.sh .
 RUN chmod +x /root/nvidia/entrypoint.sh
 RUN mkdir -p /root/tmp
 EOF
-
+```
 
 The other file required for building the driver image is the entrypoint. By running this command, the file is created and placed in the vgpu directory:
 
-
+```
 $ cat << EOF > ~/vgpu/entrypoint.sh
-
 #!/bin/sh
 /usr/sbin/rmmod nvidia
 /root/nvidia/${NVIDIA_INSTALLER_BINARY} --kernel-source-path=/usr/src/kernels/$(uname -r) --kernel-install-path=/lib/modules/$(uname -r)/kernel/drivers/video/ --silent --tmpdir /root/tmp/ --no-systemd
@@ -256,17 +258,17 @@ $ cat << EOF > ~/vgpu/entrypoint.sh
 
 while true; do sleep 15 ; /usr/bin/pgrep nvidia-vgpu-mgr ; if [ 0 -ne 0 ] ; then echo "nvidia-vgpu-mgr is not running" && exit 1; fi; done
 EOF
-
+```
 
 When done with the previous steps, confirm that you have all the necessary files, as seen below, in the vgpu folder:
-
+```
 $ ls
 
 Containerfile	               entrypoint.sh                         NVIDIA-Linux-x86_64-510.47.03-vgpu-kvm.run
-
+```
 
 Now that we have all the files, we can build the driver container image by running:
-
+```
 $ podman build --build-arg NVIDIA_INSTALLER_BINARY=NVIDIA-Linux-x86_64-510.47.03-vgpu-kvm.run -t ocp-nvidia-vgpu-installer .
 
 STEP 1/11: FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:ee885e4cfef83fc2d3c34fe04afb4986b957f740fb4dc13bf0358daab57e12ba
@@ -302,15 +304,15 @@ STEP 11/11: RUN mkdir -p /root/tmp
 COMMIT ocp-nvidia-vgpu-installer
 --> bcbb311e359
 Successfully tagged localhost/ocp-nvidia-vgpu-installer:latest
-
+```
 
 Before uploading the image to a private repository, we need to tag the image with the target repository format:
-
+```
 $ podman tag localhost/ocp-nvidia-vgpu-installer:latest quay.io/dialvare/ocp-nvidia-installer:latest
-
+```
 
 Then, we can push the image onto the repository. Note that the driver image cannot be freely shared as a result of NVIDIA licensing restrictions, so it should be pushed to a private repository (substitute this URL for your private repository):
-
+```
 $ podman push quay.io/dialvare/ocp-nvidia-vgpu-installer:latest
 
 Getting image source signatures
@@ -329,13 +331,12 @@ Copying blob 1340136c8008 done
 Copying config dcbac678b6 done  
 Writing manifest to image destination
 Storing signatures
-
+```
 
 To load the driver image into the kernel, we’re going to create a set of resources that will use and apply the image to the node, which will load the necessary NVIDIA drivers into the host kernel and provide the additional tools to be able to utilize vGPU devices. This instance will run as a DaemonSet across the cluster. Be sure to specify the correct image path to your private repository:
 
-
+```
 $ cat << EOF > ~/1000-drivercontainer.yaml
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -419,28 +420,28 @@ spec:
       nodeSelector:
         hasGpu: "true"
 EOF
-
+```
 
 Apply the CustomResources to the cluster:
-
+```
 $ oc create -f 1000-drivercontainer.yaml
 
 serviceaccount/simple-kmod-driver-container created
 role.rbac.authorization.k8s.io/simple-kmod-driver-container created
 rolebinding.rbac.authorization.k8s.io/simple-kmod-driver-container created
 daemonset.apps/simple-kmod-driver-container created
-
+```
 
 Verify that the DaemonSet was applied and is running correctly: 
-
+```
 $ oc get daemonset simple-kmod-driver-container -n openshift-nfd
 
-NAME                                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
-simple-kmod-driver-container    1                 1                  1              1                      1                    hasGpu=true           5d20h
-
+NAME                             DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR     AGE
+simple-kmod-driver-container     1         1         1       1            1           hasGpu=true       5d20h
+```
 
 To verify that everything was configured properly, we must see the drivers loaded in the kernel. Run the following commands:
-
+```
 $ oc debug node/r740.pemlab.rdu2.redhat.com
 # chroot /host
 # lsmod | grep nvidia
@@ -450,11 +451,11 @@ nvidia                     39067648   11
 mdev                            20480   2   vfio_mdev,nvidia_vgpu_vfio
 vfio                               36864   3   vfio_mdev,nvidia_vgpu_vfio,vfio_iommu_type1
 drm                            569344   4   drm_kms_helper,nvidia,mgag200
-
+```
 
 At this point, the kernel has the NVIDIA drivers loaded. The next step is choosing the configuration for the GPU card. Running the following command allows us to list different ways for carving up the GPU cards as vGPU into the virtual machine:
 
-
+```
 # for device in /sys/class/mdev_bus/*; do for mdev_type in "$device"/mdev_supported_types/*; do     MDEV_TYPE=$(basename $mdev_type);     DESCRIPTION=$(cat $mdev_type/description);     NAME=$(cat $mdev_type/name); echo "mdev_type: $MDEV_TYPE --- description: $DESCRIPTION --- name: $NAME";   done; done | sort | uniq
 
 mdev_type: nvidia-11 --- description: num_heads=2, frl_config=45, framebuffer=512M, max_resolution=2560x1600, max_instance=16 --- name: GRID M60-0B
@@ -471,63 +472,62 @@ mdev_type: nvidia-210 --- description: num_heads=4, frl_config=45, framebuffer=2
 mdev_type: nvidia-21 --- description: num_heads=1, frl_config=60, framebuffer=8192M, max_resolution=1280x1024, max_instance=1 --- name: GRID M60-8A
 mdev_type: nvidia-22 --- description: num_heads=4, frl_config=60, framebuffer=8192M, max_resolution=5120x2880, max_instance=1 --- name: GRID M60-8Q
 mdev_type: nvidia-238 --- description: num_heads=4, frl_config=45, framebuffer=1024M, max_resolution=5120x2880, max_instance=8 --- name: GRID M60-1B4
-
+```
 
 For this demonstration, we’re going to use the nvidia-22 option, so we’ll have a vGPU per physical GPU. In this case, our node has two physical GPUs, so we need to pass a unique uuid number to specify their respective paths by running the following command twice:
-
+```
 # echo `uuidgen` > /sys/class/mdev_bus/0000:3e:00.0/mdev_supported_types/nvidia-22/create
 
 # echo `uuidgen` > /sys/class/mdev_bus/0000:3d:00.0/mdev_supported_types/nvidia-22/create
-
+```
 
 Now that the vGPU devices are created, we can expose those vGPUs devices to OpenShift Virtualization, by modifying the Hyperconverged object. We first need to create the following file: 
-
+```
 $ cat << EOF > ~/kubevirt-hyperconverged-patch.yaml
-
 spec:
     permittedHostDevices:
       mediatedDevices:
       - mdevNameSelector: "GRID M60-8Q"
         resourceName: "nvidia.com/GRID_M60_8Q"
 EOF
-
+```
 
 Next, we can merge the code with the existing kubevirt-hyperconverged configuration: 
-
+```
 $ oc patch hyperconverged kubevirt-hyperconverged -n openshift-cnv --patch "$(cat ~/kubevirt-hyperconverged-patch.yaml)" --type=merge
 
 hyperconverged.hco.kubevirt.io/kubevirt-hyperconverged patched
-
+```
 
 Applying this configuration in the node may take some time. Run the following command until the GPU statement is shown. In this case, we have two physical GPU cards, so two devices are shown next to the vGPU name:
-
+```
 $ oc describe node| sed '/Capacity/,/System/!d;/System/d'
 
 Capacity:
-  cpu:                                                   24
+  cpu:                                       24
   devices.kubevirt.io/kvm:                   1k
-  devices.kubevirt.io/tun:                     1k
-  devices.kubevirt.io/vhost-net:           1k
-  ephemeral-storage:                          936104940Ki
-  hugepages-1Gi:                                0
-  hugepages-2Mi:                                0
-  memory:                                           131561680Ki
-  nvidia.com/GRID_M60_8Q:             2
-  pods:                                                250
+  devices.kubevirt.io/tun:                   1k
+  devices.kubevirt.io/vhost-net:             1k
+  ephemeral-storage:                         936104940Ki
+  hugepages-1Gi:                             0
+  hugepages-2Mi:                             0
+  memory:                                    131561680Ki
+  nvidia.com/GRID_M60_8Q:                    2
+  pods:                                      250
 Allocatable:
-  cpu:                                                  23500m
-  devices.kubevirt.io/kvm:                  1k
-  devices.kubevirt.io/tun:                    1k
-  devices.kubevirt.io/vhost-net:          1k
-  ephemeral-storage:                          862714311276
-  hugepages-1Gi:                               0
-  hugepages-2Mi:                               0
-  memory:                                          130410704Ki
-  nvidia.com/GRID_M60_8Q:            2
-  pods:                                               250
+  cpu:                                       23500m
+  devices.kubevirt.io/kvm:                   1k
+  devices.kubevirt.io/tun:                   1k
+  devices.kubevirt.io/vhost-net:             1k
+  ephemeral-storage:                         862714311276
+  hugepages-1Gi:                             0
+  hugepages-2Mi:                             0
+  memory:                                    130410704Ki
+  nvidia.com/GRID_M60_8Q:                    2
+  pods:                                      250
+```
 
-
-Create virtual machine
+## Create virtual machine
 At this point, the cluster configuration is complete and the node is ready to recognize and use the GPU. Therefore, we can deploy the virtual machine that is going to use the vGPU resource. As stated in the beginning of this blog, we are going to deploy a Fedora 35 VM using the wizard provided by the web console. 
 
 Navigate again to the web console and select the Workloads section on the left side of the page. There, select the Virtualization option. Then, you’ll see different tabs. Click on Virtual Machines and select Create Virtual Machine. Different operating systems will be shown. In this case, select Fedora 33+ VM and then click Next.
@@ -535,29 +535,29 @@ Navigate again to the web console and select the Workloads section on the left s
 
 
 In the boot source section, at the bottom, select Customize Virtual Machine. Complete the following fields and then advance to the next sections by clicking Next:
-Name: write your preferred name for the virtual machine.
-Boot Source: select Import via URL (creates PVC).
-URL: paste the URL of a qcow2 image that is accessible from the node. For example: https://download.fedoraproject.org/pub/fedora/linux/releases/35/Cloud/x86_64/images/Fedora-Cloud-Base-35-1.2.x86_64.qcow2
-Flavor: choose the option Custom. Indicate 32 GiB of memory and 12 CPU cores.
-Workload Type: keep the default option Server.
-User: complete the field with your preferred user name.
-Password: complete the field with the password we’ll be using to log into the VM.
-Hostname: write a hostname for the virtual machine.
-Authorized SSH key: paste the SSH key stored in the ~/.ssh/id_rsa.pub file.
-SSH access: make sure the Expose SSH access to this virtual machine box is checked.
-Uncheck the Start virtual machine on creation box.
+- Name: write your preferred name for the virtual machine.
+- Boot Source: select Import via URL (creates PVC).
+- URL: paste the URL of a qcow2 image that is accessible from the node. For example: https://download.fedoraproject.org/pub/fedora/linux/releases/35/Cloud/x86_64/images/Fedora-Cloud-Base-35-1.2.x86_64.qcow2
+- Flavor: choose the option Custom. Indicate 32 GiB of memory and 12 CPU cores.
+- Workload Type: keep the default option Server.
+- User: complete the field with your preferred user name.
+- Password: complete the field with the password we’ll be using to log into the VM.
+- Hostname: write a hostname for the virtual machine.
+- Authorized SSH key: paste the SSH key stored in the ~/.ssh/id_rsa.pub file.
+- SSH access: make sure the Expose SSH access to this virtual machine box is checked.
+- Uncheck the Start virtual machine on creation box.
 
 Check if everything is properly configured and then click Create Virtual Machine. The VM provisioning will start. Select See virtual machine details to follow the VM deployment. Wait a few minutes until you see Status: Running:
 
 
 
 Before accessing the VM we need to add the statements needed for passing the vGPU configured. Click on the VM name (in my case fedora) and you’ll see some information and graphics about the virtual machine status. Navigate to the YAML tab and add the following commands in the devices resource:
-
+```
 devices:  
   gpus:
       - deviceName: nvidia.com/GRID_M60_8Q
         name: GRID_M60_8Q
-
+```
 
 When added, click the Save button and then Reload. To apply the new device configuration, in the upper-right corner, deploy the Actions section and select Start Virtual Machine.
 
@@ -566,49 +566,49 @@ Now, we can access the virtual machine from the OpenShift web console or from ou
 
 
 Copy the ssh command provided, paste it into your terminal window, and you’ll be connected to the fedora virtual machine; this relies on simple nodeport access:
-
+```
 $ ssh fedora@api.pemlab.rdu2.redhat.com -p 32142
 Last login: Wed Mar 30 04:08:20 2022 from 10.128.0.1
-
+```
 
 To complete the configuration, as root user, check that the vGPU passed into the VM is listed there:
-
+```
 $ sudo bash
 # lspci | grep NVIDIA
 
 06:00.0 VGA compatible controller: NVIDIA Corporation GM204GL [Tesla M60] (rev a1)
+```
 
-
-Install drivers and applications in the VM
+## Install drivers and applications in the VM
 Now, we can install the NVIDIA drivers in the virtual machine. An important point that we need to keep in mind is that, for the host we installed the vGPU drivers, but now, we need to download the GRID version for the guest. 
 
 Navigate to the official page of NVIDIA and download the proper GRID driver version in the virtual machine. In this case, we’ll use the NVIDIA-Linux-x86_64-510.47.03-grid.run file. Before running it, we also need to install all prerequisites to ensure the driver compilation and installation won’t fail:
-
+```
 $ sudo -i
 
 # dnf groupinstall “Development Tools”
 
 # dnf install elfutils-libelf-devel libglvnd-devel
-
+```
 
 Once installed all needed libraries, disable the nouveau driver permanently, modifying the GRUB menu and then, reboot the node:
-
+```
 # grub2-editenv - set “$(grub2-editenv - list | grep kernelopts) nouveau.modeset=0”
 
 # reboot
-
+```
 
 Access to the VM again and run the following command to stop the Xorg server (if it was running) and switch to text mode:
-
+```
 $ sudo -i
 
 # systemctl isolate multi-user.target
-
+```
 
 Now, we can start with the driver installation. Run the GRID driver file:
-
+```
 # bash NVIDIA-Linux-x86_64-510.47.03-grid.run
-
+```
 
 The installation screen will be shown, asking to register the kernel with DKMS. Select Yes:
 
@@ -618,19 +618,19 @@ When the DKMS kernel module installation finishes, we’ll see the next screen. 
 
 
 The installation process will continue. When finished, select No when asked about allowing automatic Xorg backup. We’re not going to use it for this demo. Once the installation is complete, select OK to proceed. Then, reboot the virtual machine again to apply the changes:
-
+```
 # reboot
-
+```
 
 Now, we can install the NVIDIA CUDA Toolkit, which provides some graphical examples to test the vGPU. Firstly, we need to check the Toolkit version compatible with our driver version here. For the driver we installed, we need to download the NVIDIA CUDA Toolkit 11.6.2 here. Access the virtual machine and paste the download command provided:
-
+```
 $ wget https://developer.download.nvidia.com/compute/cuda/11.6.2/local_installers/cuda_11.6.2_510.47.03_linux.run
-
+```
 
 Run the file to install it: 
-
+```
 $ sudo sh cuda_11.6.2_510.47.03_linux.run
-
+```
 
 You will see the Toolkit License Agreement window. Write accept:
 
@@ -641,7 +641,7 @@ Important: The CUDA installation will automatically opt to install the NVIDIA dr
 
 
 When finished, make sure that the variables $PATH includes /usr/local/cuda-11.6/bin and $LD_LIBRARY_PATH includes /usr/local/cuda-11.6/lib64. Run the following commands:
-
+```
 $ echo $PATH
 
 /home/cloud-user/.local/bin:/home/cloud-user/bin:/usr/local/cuda-11.6/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/var/lib/snapd/snap/bin
@@ -649,38 +649,38 @@ $ echo $PATH
 $ echo $LD_LIBRARY_PATH
 
 /usr/local/cuda-11.6/lib64
-
+```
 
 Once the installation is complete, we can check the configuration by running the following command. Make sure you don’t see any N/A value in the header:
-
+```
 $ nvidia-smi
-
+```
 
 
 
 At this point, we’re seeing that everything is configured correctly. Now we can fire up our preferred applications to test the vGPU acceleration. CUDA Toolkit also provides some examples to test the GPU card. Download the Samples from the official GitHub repository here.  Run the next command:
-
+```
 $ git clone https://github.com/NVIDIA/cuda-samples.git
-
+```
 
 Before launching the applications we’re going to install some dependencies and libraries:
-
+```
 $ dnf install gcc-c++ mesa-libGLU-devel libX11-devel libXi-devel libXmu-devel freeglut freeglut-devel -y
+```
 
-
-Validation
+## Validation
 We can validate the installation by running some CUDA samples. One of the most basic samples we can use to verify the use of the vGPU is deviceQuery. Navigate to the path where the app is stored:
-
+```
 $ cd cuda-samples/Samples/1_Utilities/deviceQuery
-
+```
 
 Now, we can create the executable file:
-
+```
 $ make
-
+```
 
 Run the application and, if everything is working fine, you’ll see something similar to this:
-
+```
 $ ./deviceQuery
 
 ./deviceQuery Starting...
@@ -729,7 +729,7 @@ Device 0: "GRID M60-8Q"
 
 deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 11.6, CUDA Runtime Version = 11.6, NumDevs = 1
 Result = PASS
-
+```
 
 Looks great! The GPU is working fine and everything seems to be well configured so we can move ahead and try a more powerful software to test the GPU acceleration. 
 
@@ -738,7 +738,7 @@ HashCat is an open source project meant to be one of the fastest and most advanc
 Once downloaded, navigate to the folder created during the installation. We are going to use the benchmark option (-b) to test our hardware. We’re going to run the app twice: the first one, using the CPU and the second one, using the vGPU device. We’ll leave all other parameters by default to make the test as fair as possible. 
 
 Let’s start by listing our devices by running the following command:
-
+```
 $ ./hashcat.bin -I
 
 hashcat (v6.2.5) starting in backend information mode
@@ -795,12 +795,12 @@ OpenCL Platform ID #2
     OpenCL.Version..: OpenCL C 1.2 
     Driver.Version…...: 510.47.03
     PCI.Addr.BDF…...: 06:00.0
+```
 
-
-Results using CPU:
+### Results using CPU:
 
 If we look inside the OpenCl Info section, we can identify our CPU with Platform ID #1 and Backend Device ID #2. We can test the performance using the CPU by running the following command: 
-
+```
 $ ./hashcat.bin -b -D 1 -d 2
 
 hashcat (v6.2.5) starting in benchmark mode
@@ -841,13 +841,13 @@ Speed.#2.........:  1066.0 MH/s (22.91ms) @ Accel:1024 Loops:1024 Thr:1 Vec:16
 
 Speed.#2.........:   495.1 MH/s (24.76ms) @ Accel:1024 Loops:512 Thr:1 Vec:16
 
-
+```
 Note that the GPU device is skipped and the HashCat software is only using the Intel Xeon CPU device. As expected, the ‘hashes per second’ rate decreases as the complexity of the algorithm used increases. The interesting part here is comparing the MH/s rates under the same Hash-Mode, with the ones we’re going to obtain by running it using the vGPU device. 
 
-Results using vGPU:
+### Results using vGPU:
 
 We can identity the Tesla M60 vGPU in the OpenCl Info section with Platform ID #2 and Backend Device ID #3. We can test the performance using the GPU by running the following command: 
-
+```
 $ /hashcat.bin -b -D 2 -d 3
 
 hashcat (v6.2.5) starting in benchmark mode
@@ -887,7 +887,7 @@ Speed.#1.........:  4110.3 MH/s (63.83ms) @ Accel:64 Loops:512 Thr:512 Vec:1
 ---------------------------
 
 Speed.#1.........:  1445.4 MH/s (90.64ms) @ Accel:128 Loops:64 Thr:1024 Vec:1
-
+```
 
 This time, we can see that the skipped device is the CPU and the hardware used is the GRID M60-8Q vGPU. As seen before, the MH/s rate decreases according to the Hash-Mode. The parts to be highlighted here are the rates obtained compared with the previous attempt using CPU hardware. Let’s sort them out according to the algorithm used to see it clearly:
 
