@@ -916,11 +916,6 @@ As we can see in the table above, we are considerably multiplying the number of 
 ## What’s next?
 As mentioned at the beginning of the blog, although we have deployed a Single Node OpenShift instance on bare metal, the process followed is completely valid for many other topologies. OpenShift can be deployed on our own existing infrastructure or on different Cloud platforms such as AWS, Azure, IBM Cloud, etc... 
 
-Ready to learn more? Check out all supported platforms for OpenShift clusters, by visiting the Installation section.
+Ready to learn more? Check out all supported platforms for OpenShift clusters, by visiting the [Installation section](https://docs.openshift.com/container-platform/4.9/installing/index.html).
 
-Depending on the GPU device we’re using, we’ll need to download the corresponding drivers and CUDA Toolkit version. If you have any concerns about the installation, make sure to check the official NVIDIA documentation. Finally, to test our vGPU performance, CUDA Toolkit provides numerous graphical samples you can try out. Go to the official GitHub repository and find the one that suits you best!
-
- 
-
-
-
+Depending on the GPU device we’re using, we’ll need to download the corresponding drivers and CUDA Toolkit version. If you have any concerns about the installation, make sure to check the [official NVIDIA documentation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html). Finally, to test our vGPU performance, CUDA Toolkit provides numerous graphical samples you can try out. Go to the [official GitHub repository](https://github.com/NVIDIA/cuda-samples) and find the one that suits you best!
