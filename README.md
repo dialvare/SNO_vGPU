@@ -158,8 +158,8 @@ You should verify that the MachineConfig was created correctly:
 ```
 $ oc get machineconfig 50-set-selinux-for-hostpath-provisioner-worker
 
-NAME                                                      GENERATEDBYCONTROLLER     IGNITIONVERSION   AGE 
-50-set-selinux-for-hostpath-provisioner-worker                                                2.2.0                           7d5h
+NAME                                                      GENERATEDBYCONTROLLER       IGNITIONVERSION       AGE 
+50-set-selinux-for-hostpath-provisioner-worker                                        2.2.0                 7d5h
 ```
 
 And it is also important to check that the MachineConfig has been applied in the worker node after rebooting automatically. When the node comes back and the API is available again, run the command until *True* is shown:
@@ -701,39 +701,39 @@ Detected 1 CUDA Capable device(s)
 
 Device 0: "GRID M60-8Q"
   CUDA Driver Version / Runtime Version               11.6 / 11.6
-  CUDA Capability Major/Minor version number:     5.2
-  Total amount of global memory:                             8192 MBytes (8589934592 bytes)
-  (016) Multiprocessors, (128) CUDA Cores/MP:     2048 CUDA Cores
-  GPU Max Clock rate:                                             1178 MHz (1.18 GHz)
-  Memory Clock rate:                                                2505 Mhz
-  Memory Bus Width:                                                256-bit
-  L2 Cache Size:                                                       2097152 bytes
-  Maximum Texture Dimension Size (x,y,z)               1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
-  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
-  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
-  Total amount of constant memory:                         65536 bytes
+  CUDA Capability Major/Minor version number:         5.2
+  Total amount of global memory:                      8192 MBytes (8589934592 bytes)
+  (016) Multiprocessors, (128) CUDA Cores/MP:         2048 CUDA Cores
+  GPU Max Clock rate:                                 1178 MHz (1.18 GHz)
+  Memory Clock rate:                                  2505 Mhz
+  Memory Bus Width:                                   256-bit
+  L2 Cache Size:                                      2097152 bytes
+  Maximum Texture Dimension Size (x,y,z)              1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers       1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers       2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:                    65536 bytes
   Total amount of shared memory per block:            49152 bytes
-  Total shared memory per multiprocessor:              98304 bytes
-  Total number of registers available per block:        65536
-  Warp size:                                                               32
-  Maximum number of threads per multiprocessor:  2048
-  Maximum number of threads per block:                 1024
-  Max dimension size of a thread block (x,y,z):         (1024, 1024, 64)
-  Max dimension size of a grid size    (x,y,z):            (2147483647, 65535, 65535)
-  Maximum memory pitch:                                         2147483647 bytes
-  Texture alignment:                                                   512 bytes
-  Concurrent copy and kernel execution:                   Yes with 2 copy engine(s)
-  Run time limit on kernels:                                        No
-  Integrated GPU sharing Host Memory:                   No
-  Support host page-locked memory mapping:         Yes
-  Alignment requirement for Surfaces:                      Yes
-  Device has ECC support:                                       Disabled
+  Total shared memory per multiprocessor:             98304 bytes
+  Total number of registers available per block:      65536
+  Warp size:                                          32
+  Maximum number of threads per multiprocessor:       2048
+  Maximum number of threads per block:                1024
+  Max dimension size of a thread block (x,y,z):       (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z):       (2147483647, 65535, 65535)
+  Maximum memory pitch:                               2147483647 bytes
+  Texture alignment:                                  512 bytes
+  Concurrent copy and kernel execution:               Yes with 2 copy engine(s)
+  Run time limit on kernels:                          No
+  Integrated GPU sharing Host Memory:                 No
+  Support host page-locked memory mapping:            Yes
+  Alignment requirement for Surfaces:                 Yes
+  Device has ECC support:                             Disabled
   Device supports Unified Addressing (UVA):           Yes
-  Device supports Managed Memory:                       No
-  Device supports Compute Preemption:                  No
-  Supports Cooperative Kernel Launch:                    No
-  Supports MultiDevice Co-op Kernel Launch:          No
-  Device PCI Domain ID / Bus ID / location ID:         0 / 6 / 0
+  Device supports Managed Memory:                     No
+  Device supports Compute Preemption:                 No
+  Supports Cooperative Kernel Launch:                 No
+  Supports MultiDevice Co-op Kernel Launch:           No
+  Device PCI Domain ID / Bus ID / location ID:        0 / 6 / 0
   Compute Mode:
      < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
 
