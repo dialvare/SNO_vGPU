@@ -51,14 +51,13 @@ In the Networking section, fill the **Select subnet** field by choosing the subn
 Single Node OpenShift installation can be monitored with the progress bar displayed. Once completed, you can spread out the installation section. There, you’ll find the *Web Console URL*, the admin user *kubeadmin* and the *password*. Access the web console by clicking on the **URL** and log in with the provided credentials. The web console Interface looks like this:
 
 ## Install Operators
-To proceed with the configuration, two Operators from the OperatorHub in OpenShift are needed: OpenShift Virtualization and Node Feature Discovery (NFD).
+To proceed with the configuration, two Operators from the OperatorHub in OpenShift are needed: **OpenShift Virtualization** and **Node Feature Discovery (NFD)**.
 
-On the left side of the web console, open the Operators tab and click OperatorHub. There, we can search both operators filtering by name:
-- OpenShift Virtualization: This operator is installed during SNO deployment when checking the Install OpenShift Virtualization box. The status should be Succeed. If not, click Install.
-- Node Feature Discovery (NFD): click Install and use the default configuration provided. Once installed, select the NFD Operator and click on Create Instance. There, we’ll find different parameters we can configure. In this case, we are going to keep it by default, so click Create.
+On the left side of the web console, open the **Operators** tab and click **OperatorHub**. There, we can search both operators filtering by name:
+- **OpenShift Virtualization**: This operator is installed during SNO deployment when checking the *Install OpenShift Virtualization* box. The status should be *Succeed*. If not, click *Install*.
+- **Node Feature Discovery (NFD)**: click *Install* and use the default configuration provided. Once installed, select the NFD Operator and click on *Create Instance*. There, we’ll find different parameters we can configure. In this case, we are going to keep it by default, so click *Create*.
 
-Verify the installation finished correctly by checking the Installed Operators section under Operators. You’ll see something like this: 
-
+Verify the installation finished correctly by checking the **Installed Operators** section under **Operators**. You’ll see something like this: 
 
 ## Enable IOMMU
 An input–output memory management unit (IOMMU) can be used in guest systems, such as VMs to use hardware that is not specifically made for virtualization. Graphic cards use direct memory access (DMA) to manage memory directly. In a virtual environment, all memory addresses are re-mapped by the virtual machine software, which causes DMA devices to fail. The IOMMU handles this re-mapping, allowing the guest operating system to use the native device drivers installed. 
