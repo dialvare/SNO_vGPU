@@ -17,7 +17,7 @@ As mentioned previously, we’re going to deploy a Single Node OpenShift instanc
 - NVIDIA Tesla M60 GPU Card w/2 GPUs 16GB Memory
 
 ## Install Single Node OpenShift
-Single Node OpenShift offers both control and worker capabilities in a single node, reducing the footprint and allowing it to run in more constrained environments. We’ll use the Assisted Installer which simplifies the deployment of OpenShift on bare metal hardware. Let’s start with the configuration from scratch.
+Single Node OpenShift offers both control and worker capabilities in a single node, reducing the footprint and allowing it to run in more constrained environments. We’ll use the [Assisted Installer](https://console.redhat.com/openshift/assisted-installer/clusters/) which simplifies the deployment of OpenShift on bare metal hardware. Let’s start with the configuration from scratch.
 
 Firstly, we need to navigate to the Assisted Installer page via the OpenShift Cluster Manager console and login with our Red Hat account. After logging in, click the Create button. Then, choose the Datacenter tab as target, and select Create Cluster. 
 
