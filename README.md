@@ -913,7 +913,7 @@ Depending on the CPU processor and the GPU card you’re using, the rates obtain
 
 As we can see in the table above, we are considerably multiplying the number of iterations performed when we make use of the Tesla M60 GPU card. We tested the vGPU with a password cracker software, but this feature could be used in many other scenarios: AI/ML workloads, computation, high-resolution images or video processing, etc. So, there are countless possibilities where we can use vGPU acceleration in virtual machines.
 
-What’s next?
+## What’s next?
 As mentioned at the beginning of the blog, although we have deployed a Single Node OpenShift instance on bare metal, the process followed is completely valid for many other topologies. OpenShift can be deployed on our own existing infrastructure or on different Cloud platforms such as AWS, Azure, IBM Cloud, etc... 
 
 Ready to learn more? Check out all supported platforms for OpenShift clusters, by visiting the Installation section.
