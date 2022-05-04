@@ -117,7 +117,7 @@ machineconfig.machineconfiguration.openshift.io/100-master-iommu created
 Wait for the node where the MachineConfig is applied to reboot. Then, we can continue onto the next step.
 
 ## Create Hostpath Provisioning
-Pods and containers are ephemeral by nature and therefore, by default, so is their storage. Nevertheless, OpenShift provides different options in case persistent storage is needed. In this blog, we are going to use HostPath provisioning local storage. Following these steps, we can configure and use local storage in virtual machines.   
+Pods and containers are ephemeral by nature and therefore, by default, so is their storage. Nevertheless, OpenShift provides different options in case persistent storage is needed. In this blog, we are going to use [HostPath provisioning local storage](https://docs.openshift.com/container-platform/4.9/storage/persistent_storage/persistent-storage-hostpath.html). Following these steps, we can configure and use local storage in virtual machines.   
 
 Firstly, we need to generate the MachineConfig object to set up our worker node in the cluster. A new unit file will be deployed in the worker node. This will create the new directory where the data will be stored:
 
@@ -154,6 +154,7 @@ EOF
 ```
 
 You should verify that the MachineConfig was created correctly:
+
 ```
 $ oc get machineconfig 50-set-selinux-for-hostpath-provisioner-worker
 
@@ -161,7 +162,8 @@ NAME                                                      GENERATEDBYCONTROLLER 
 50-set-selinux-for-hostpath-provisioner-worker                                                2.2.0                           7d5h
 ```
 
-And it is also important to check that the MachineConfig has been applied in the worker node after rebooting automatically. When the node comes back and the API is available again, run the command until True is shown:
+And it is also important to check that the MachineConfig has been applied in the worker node after rebooting automatically. When the node comes back and the API is available again, run the command until *True* is shown:
+
 ```
 $ oc get machineconfigpool worker -o=jsonpath="{.status.conditions[?(@.type=='Updated')].status}{\"\n\"}"
 
@@ -169,6 +171,7 @@ True
 ```
 
 After making sure our worker node is properly configured, we can set up the HostPathProvisioner object. The following lines indicate the path that is going to be used for storage:
+
 ```
 $ cat << EOF | oc apply -f -
 apiVersion: hostpathprovisioner.kubevirt.io/v1beta1
@@ -183,7 +186,8 @@ spec:
 EOF
 ```
 
-Then, we create a new StorageClass to be used by the host path provisioner. This StorageClass has a provisioner, so persistent volumes are going to be created dynamically: 
+Then, we create a new StorageClass to be used by the host path provisioner. This StorageClass has a provisioner, so persistent volumes are going to be created dynamically:
+
 ```
 $ cat << EOF | oc apply -f -
 apiVersion: storage.k8s.io/v1
@@ -197,6 +201,7 @@ EOF
 ```
 
 Lastly, before moving on to the next steps, we should confirm that the StorageClass was created correctly:
+
 ```
 $ oc get sc hostpath-provisioner
 
@@ -205,14 +210,16 @@ hostpath-provisioner     kubevirt.io/hostpath-provisioner     Delete            
 ```
 
 ## Apply the NVIDIA driver
-At this point, the cluster is configured and ready, so we can go ahead and focus on setting up the node to detect the NVIDIA GPU. The first task we have to do is to download the drivers needed for our GPU card from the NVIDIA official page. For this blogpost, I’m going to use the NVIDIA-Linux-x86_64-510.47.03-vgpu-kvm.run driver. These vGPU-KVM drivers are supplied via the NVIDIA customer portal and are not supplied by Red Hat.
+At this point, the cluster is configured and ready, so we can go ahead and focus on setting up the node to detect the NVIDIA GPU. The first task we have to do is to download the drivers needed for our GPU card from the NVIDIA official [page](https://www.nvidia.com/en-us/drivers/vgpu-software-driver/). For this blogpost, I’m going to use the *NVIDIA-Linux-x86_64-510.47.03-vgpu-kvm.run* driver. These vGPU-KVM drivers are supplied via the NVIDIA customer portal and are not supplied by Red Hat.
 
 We create a new folder where all the files will be placed:
+
 ```
 $ mkdir vgpu && cd vgpu
 ```
 
 Before continuing, we also need to obtain the driver-toolkit image that our cluster is currently using. The Driver Toolkit is a base image on which you can build drivers and contains the kernel packages commonly required as dependencies to build or install kernel modules on the host. We can check it by running this command:
+
 ```
 $ oc adm release info --image-for=driver-toolkit
 
@@ -239,7 +246,7 @@ RUN mkdir -p /root/tmp
 EOF
 ```
 
-The other file required for building the driver image is the entrypoint. By running this command, the file is created and placed in the vgpu directory:
+The other file required for building the driver image is the entrypoint. By running this command, the file is created and placed in the *vgpu* directory:
 
 ```
 $ cat << EOF > ~/vgpu/entrypoint.sh
@@ -254,7 +261,8 @@ while true; do sleep 15 ; /usr/bin/pgrep nvidia-vgpu-mgr ; if [ 0 -ne 0 ] ; then
 EOF
 ```
 
-When done with the previous steps, confirm that you have all the necessary files, as seen below, in the vgpu folder:
+When done with the previous steps, confirm that you have all the necessary files, as seen below, in the *vgpu* folder:
+
 ```
 $ ls
 
@@ -301,11 +309,13 @@ Successfully tagged localhost/ocp-nvidia-vgpu-installer:latest
 ```
 
 Before uploading the image to a private repository, we need to tag the image with the target repository format:
+
 ```
 $ podman tag localhost/ocp-nvidia-vgpu-installer:latest quay.io/dialvare/ocp-nvidia-installer:latest
 ```
 
 Then, we can push the image onto the repository. Note that the driver image cannot be freely shared as a result of NVIDIA licensing restrictions, so it should be pushed to a private repository (substitute this URL for your private repository):
+
 ```
 $ podman push quay.io/dialvare/ocp-nvidia-vgpu-installer:latest
 
@@ -417,6 +427,7 @@ EOF
 ```
 
 Apply the CustomResources to the cluster:
+
 ```
 $ oc create -f 1000-drivercontainer.yaml
 
@@ -427,6 +438,7 @@ daemonset.apps/simple-kmod-driver-container created
 ```
 
 Verify that the DaemonSet was applied and is running correctly: 
+
 ```
 $ oc get daemonset simple-kmod-driver-container -n openshift-nfd
 
@@ -435,16 +447,17 @@ simple-kmod-driver-container     1         1         1       1            1     
 ```
 
 To verify that everything was configured properly, we must see the drivers loaded in the kernel. Run the following commands:
+
 ```
 $ oc debug node/r740.pemlab.rdu2.redhat.com
 # chroot /host
 # lsmod | grep nvidia
 
-nvidia_vgpu_vfio          65536   0
-nvidia                     39067648   11
-mdev                            20480   2   vfio_mdev,nvidia_vgpu_vfio
-vfio                               36864   3   vfio_mdev,nvidia_vgpu_vfio,vfio_iommu_type1
-drm                            569344   4   drm_kms_helper,nvidia,mgag200
+nvidia_vgpu_vfio                    65536   0
+nvidia                           39067648   11
+mdev                                20480   2   vfio_mdev,nvidia_vgpu_vfio
+vfio                                36864   3   vfio_mdev,nvidia_vgpu_vfio,vfio_iommu_type1
+drm                                569344   4   drm_kms_helper,nvidia,mgag200
 ```
 
 At this point, the kernel has the NVIDIA drivers loaded. The next step is choosing the configuration for the GPU card. Running the following command allows us to list different ways for carving up the GPU cards as vGPU into the virtual machine:
@@ -468,7 +481,8 @@ mdev_type: nvidia-22 --- description: num_heads=4, frl_config=60, framebuffer=81
 mdev_type: nvidia-238 --- description: num_heads=4, frl_config=45, framebuffer=1024M, max_resolution=5120x2880, max_instance=8 --- name: GRID M60-1B4
 ```
 
-For this demonstration, we’re going to use the nvidia-22 option, so we’ll have a vGPU per physical GPU. In this case, our node has two physical GPUs, so we need to pass a unique uuid number to specify their respective paths by running the following command twice:
+For this demonstration, we’re going to use the **nvidia-22** option, so we’ll have a vGPU per physical GPU. In this case, our node has two physical GPUs, so we need to pass a unique *uuid* number to specify their respective paths by running the following command twice:
+
 ```
 # echo `uuidgen` > /sys/class/mdev_bus/0000:3e:00.0/mdev_supported_types/nvidia-22/create
 
@@ -476,6 +490,7 @@ For this demonstration, we’re going to use the nvidia-22 option, so we’ll ha
 ```
 
 Now that the vGPU devices are created, we can expose those vGPUs devices to OpenShift Virtualization, by modifying the Hyperconverged object. We first need to create the following file: 
+
 ```
 $ cat << EOF > ~/kubevirt-hyperconverged-patch.yaml
 spec:
@@ -487,6 +502,7 @@ EOF
 ```
 
 Next, we can merge the code with the existing kubevirt-hyperconverged configuration: 
+
 ```
 $ oc patch hyperconverged kubevirt-hyperconverged -n openshift-cnv --patch "$(cat ~/kubevirt-hyperconverged-patch.yaml)" --type=merge
 
@@ -494,6 +510,7 @@ hyperconverged.hco.kubevirt.io/kubevirt-hyperconverged patched
 ```
 
 Applying this configuration in the node may take some time. Run the following command until the GPU statement is shown. In this case, we have two physical GPU cards, so two devices are shown next to the vGPU name:
+
 ```
 $ oc describe node| sed '/Capacity/,/System/!d;/System/d'
 
