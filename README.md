@@ -9,27 +9,26 @@ Nevertheless, depending on the case, the entire GPU is not always needed. Typica
 
 The objective of this blog is to dive into the process of setting up a cluster using a Single Node OpenShift instance on bare metal,  and to configure and pass an NVIDIA GPU card as a vGPU (i.e. just a slice of the overall card) into a Fedora VM. Then, we’re going to test the performance by running different applications that make use of that vGPU. To finish off, we’ll compare the previous results with the ones obtained when the vGPU is not used, where we’ll simply rely on the CPU instead. 
 
-Node specifications
+## Node specifications
 As mentioned previously, we’re going to deploy a Single Node OpenShift instance using the Assisted Installer for OpenShift 4.9.19 on a bare metal host. In this particular case, we’re going to use a single machine, but this blog can be followed for other topologies, like full-scale production clusters and compact clusters (three nodes). The node used in our example has the following specifications:
-2x Intel Xeon Silver 4116, 2.1G, 12C/24T
-4x 480GB SSD SATA (RAID 10)
-128GB Memory
-NVIDIA Tesla M60 GPU Card w/2 GPUs 16GB Memory
+- 2x Intel Xeon Silver 4116, 2.1G, 12C/24T
+- 4x 480GB SSD SATA (RAID 10)
+- 128GB Memory
+- NVIDIA Tesla M60 GPU Card w/2 GPUs 16GB Memory
 
-Install Single Node OpenShift
+## Install Single Node OpenShift
 Single Node OpenShift offers both control and worker capabilities in a single node, reducing the footprint and allowing it to run in more constrained environments. We’ll use the Assisted Installer which simplifies the deployment of OpenShift on bare metal hardware. Let’s start with the configuration from scratch.
 
 Firstly, we need to navigate to the Assisted Installer page via the OpenShift Cluster Manager console and login with our Red Hat account. After logging in, click the Create button. Then, choose the Datacenter tab as target, and select Create Cluster. 
 
 The first part of the wizard will ask you for cluster details. Complete the following fields:
-Cluster name: preferred cluster name.
-Base domain: subdomain to match DNS. Please, refer to the OpenShift networking documentation to pre-configure your cluster’s networking, including:
-DHCP or static IP Addresses.
-Network ports.
-DNS.
-OpenShift version: in this case, OpenShift 4.9.19, the latest at time of writing.
-Check the box Install Single Node OpenShift (SNO).
-
+- Cluster name: preferred cluster name.
+- Base domain: subdomain to match DNS. Please, refer to the OpenShift networking documentation to pre-configure your cluster’s networking, including:
+  - DHCP or static IP Addresses.
+  - Network ports.
+  - DNS.
+- OpenShift version: in this case, OpenShift 4.9.19, the latest at time of writing.
+- Check the box Install Single Node OpenShift (SNO).
 
 
 When finished, we can jump into the host discovery section by clicking Next. There, be sure to check the Install OpenShift Virtualization box (although this can be enabled post-installation if desired) and then click the Add hosts button.
