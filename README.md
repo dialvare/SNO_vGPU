@@ -760,12 +760,12 @@ CUDA Info:
 CUDA.Version.: 11.6
 
 Backend Device ID #1 (Alias: #3)
-  Name..................: GRID M60-8Q
-  Processor(s).......: 16
-  Clock..................: 1177
-  Memory.Total…..: 8192 MB
-  Memory.Free…..: 7592 MB
-  PCI.Addr.BDFe..: 0000:06:00.0
+  Name.............: GRID M60-8Q
+  Processor(s).....: 16
+  Clock............: 1177
+  Memory.Total.....: 8192 MB
+  Memory.Free......: 7592 MB
+  PCI.Addr.BDFe....: 0000:06:00.0
 
 OpenCL Info:
 ============
@@ -776,36 +776,36 @@ OpenCL Platform ID #1
   Version..: OpenCL 2.0 pocl 1.7, RelWithDebInfo, LLVM 12.0.1, RELOC, SLEEF, DISTRO, POCL_DEBUG
 
   Backend Device ID #2
-    Type....................: CPU
+    Type.................: CPU
     Vendor.ID............: 128
-    Vendor.................: GenuineIntel
-    Name...................: pthread-Intel Xeon Processor (Skylake, IBRS)
-    Version................: OpenCL 1.2 pocl HSTR: pthread-x86_64-unknown-linux-gnu-skylake-avx512
-    Processor(s)........: 24
-    Clock...................: 2095
-    Memory.Total…...: 30042 MB (limited to 4096 MB allocatable in one block)
-    Memory.Free.......: 14989 MB
-    OpenCL.Version..: OpenCL C 1.2 pocl
-    Driver.Version…...: 1.7
+    Vendor...............: GenuineIntel
+    Name.................: pthread-Intel Xeon Processor (Skylake, IBRS)
+    Version..............: OpenCL 1.2 pocl HSTR: pthread-x86_64-unknown-linux-gnu-skylake-avx512
+    Processor(s).........: 24
+    Clock................: 2095
+    Memory.Total.........: 30042 MB (limited to 4096 MB allocatable in one block)
+    Memory.Free..........: 14989 MB
+    OpenCL.Version.......: OpenCL C 1.2 pocl
+    Driver.Version.......: 1.7
 
 OpenCL Platform ID #2
-  Vendor..: NVIDIA Corporation
-  Name....: NVIDIA CUDA
-  Version.: OpenCL 3.0 CUDA 11.6.99
+  Vendor....: NVIDIA Corporation
+  Name......: NVIDIA CUDA
+  Version...: OpenCL 3.0 CUDA 11.6.99
 
   Backend Device ID #3 (Alias: #1)
-    Type....................: GPU
-    Vendor.ID............: 32
-    Vendor.................: NVIDIA Corporation
-    Name...................: GRID M60-8Q
-    Version................: OpenCL 3.0 CUDA
+    Type................: GPU
+    Vendor.ID...........: 32
+    Vendor..............: NVIDIA Corporation
+    Name................: GRID M60-8Q
+    Version.............: OpenCL 3.0 CUDA
     Processor(s)........: 16
-    Clock...................: 1177
-    Memory.Total……: 8192 MB (limited to 2048 MB allocatable in one block)
-    Memory.Free.......: 7552 MB
-    OpenCL.Version..: OpenCL C 1.2 
-    Driver.Version…...: 510.47.03
-    PCI.Addr.BDF…...: 06:00.0
+    Clock...............: 1177
+    Memory.Total........: 8192 MB (limited to 2048 MB allocatable in one block)
+    Memory.Free.........: 7552 MB
+    OpenCL.Version......: OpenCL C 1.2 
+    Driver.Version......: 510.47.03
+    PCI.Addr.BDF........: 06:00.0
 ```
 
 ### Results using CPU:
@@ -851,7 +851,6 @@ Speed.#2.........:  1066.0 MH/s (22.91ms) @ Accel:1024 Loops:1024 Thr:1 Vec:16
 ---------------------------
 
 Speed.#2.........:   495.1 MH/s (24.76ms) @ Accel:1024 Loops:512 Thr:1 Vec:16
-
 ```
 
 Note that the GPU device is skipped and the HashCat software is only using the *Intel Xeon CPU* device. As expected, the ‘hashes per second’ rate decreases as the complexity of the algorithm used increases. The interesting part here is comparing the MH/s rates under the same Hash-Mode, with the ones we’re going to obtain by running it using the vGPU device. 
