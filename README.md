@@ -62,7 +62,7 @@ Verify the installation finished correctly by checking the **Installed Operators
 ## Enable IOMMU
 An input–output memory management unit (IOMMU) can be used in guest systems, such as VMs to use hardware that is not specifically made for virtualization. Graphic cards use direct memory access (DMA) to manage memory directly. In a virtual environment, all memory addresses are re-mapped by the virtual machine software, which causes DMA devices to fail. The IOMMU handles this re-mapping, allowing the guest operating system to use the native device drivers installed. 
 
-To connect with the OpenShift cluster, navigate to the upper-right corner of the web console and click on kube:admin. Choose the option Copy login command. In the new browser tab, select Display Token and paste the Log in with this token command in your terminal:
+To connect with the OpenShift cluster, navigate to the upper-right corner of the web console and click on **kube:admin**. Choose the option **Copy login command**. In the new browser tab, select **Display Token** and paste the **Log in with this token** command in your terminal:
 
 ```
 $ oc login --token=<sha256_token> --server=<server_url> 
@@ -104,10 +104,10 @@ spec:
 EOF
 ```
 
-
-If you’re using AMD hardware, note that you’ll need to change the intel_iommu=on statement to  amd_iommu=on.
+If you’re using AMD hardware, note that you’ll need to change the *intel_iommu=on* statement to *amd_iommu=on*.
 
 The last step to complete the IOMMU configuration is to apply the MachineConfig to the cluster. This action will reboot the node labeled before:
+
 ```
 $ oc create -f ~/100-master-kernel-arg-iommu.yaml
 
