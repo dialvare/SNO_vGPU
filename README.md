@@ -676,17 +676,20 @@ $ dnf install gcc-c++ mesa-libGLU-devel libX11-devel libXi-devel libXmu-devel fr
 ```
 
 ## Validation
-We can validate the installation by running some CUDA samples. One of the most basic samples we can use to verify the use of the vGPU is deviceQuery. Navigate to the path where the app is stored:
+We can validate the installation by running some CUDA samples. One of the most basic samples we can use to verify the use of the vGPU is *deviceQuery*. Navigate to the path where the app is stored:
+
 ```
 $ cd cuda-samples/Samples/1_Utilities/deviceQuery
 ```
 
 Now, we can create the executable file:
+
 ```
 $ make
 ```
 
 Run the application and, if everything is working fine, you’ll see something similar to this:
+
 ```
 $ ./deviceQuery
 
@@ -740,11 +743,12 @@ Result = PASS
 
 Looks great! The GPU is working fine and everything seems to be well configured so we can move ahead and try a more powerful software to test the GPU acceleration. 
 
-HashCat is an open source project meant to be one of the fastest and most advanced password recovery utilities. This software also supports CPU and GPU acceleration, which is perfect for the purpose of this blog. We can download the software from the official page. 
+HashCat is an open source project meant to be one of the fastest and most advanced password recovery utilities. This software also supports CPU and GPU acceleration, which is perfect for the purpose of this blog. We can download the software from the official [page](https://hashcat.net/hashcat/). 
 
-Once downloaded, navigate to the folder created during the installation. We are going to use the benchmark option (-b) to test our hardware. We’re going to run the app twice: the first one, using the CPU and the second one, using the vGPU device. We’ll leave all other parameters by default to make the test as fair as possible. 
+Once downloaded, navigate to the folder created during the installation. We are going to use the *benchmark* option (-b) to test our hardware. We’re going to run the app twice: the first one, using the CPU and the second one, using the vGPU device. We’ll leave all other parameters by default to make the test as fair as possible. 
 
 Let’s start by listing our devices by running the following command:
+
 ```
 $ ./hashcat.bin -I
 
@@ -805,8 +809,8 @@ OpenCL Platform ID #2
 ```
 
 ### Results using CPU:
+If we look inside the *OpenCl Info* section, we can identify our CPU with *Platform ID #1* and *Backend Device ID #2*. We can test the performance using the **CPU** by running the following command:
 
-If we look inside the OpenCl Info section, we can identify our CPU with Platform ID #1 and Backend Device ID #2. We can test the performance using the CPU by running the following command: 
 ```
 $ ./hashcat.bin -b -D 1 -d 2
 
@@ -849,11 +853,12 @@ Speed.#2.........:  1066.0 MH/s (22.91ms) @ Accel:1024 Loops:1024 Thr:1 Vec:16
 Speed.#2.........:   495.1 MH/s (24.76ms) @ Accel:1024 Loops:512 Thr:1 Vec:16
 
 ```
-Note that the GPU device is skipped and the HashCat software is only using the Intel Xeon CPU device. As expected, the ‘hashes per second’ rate decreases as the complexity of the algorithm used increases. The interesting part here is comparing the MH/s rates under the same Hash-Mode, with the ones we’re going to obtain by running it using the vGPU device. 
+
+Note that the GPU device is skipped and the HashCat software is only using the *Intel Xeon CPU* device. As expected, the ‘hashes per second’ rate decreases as the complexity of the algorithm used increases. The interesting part here is comparing the MH/s rates under the same Hash-Mode, with the ones we’re going to obtain by running it using the vGPU device. 
 
 ### Results using vGPU:
+We can identity the Tesla M60 vGPU in the *OpenCl Info* section with *Platform ID #2* and *Backend Device ID #3*. We can test the performance using the **GPU** by running the following command: 
 
-We can identity the Tesla M60 vGPU in the OpenCl Info section with Platform ID #2 and Backend Device ID #3. We can test the performance using the GPU by running the following command: 
 ```
 $ /hashcat.bin -b -D 2 -d 3
 
@@ -896,25 +901,13 @@ Speed.#1.........:  4110.3 MH/s (63.83ms) @ Accel:64 Loops:512 Thr:512 Vec:1
 Speed.#1.........:  1445.4 MH/s (90.64ms) @ Accel:128 Loops:64 Thr:1024 Vec:1
 ```
 
-This time, we can see that the skipped device is the CPU and the hardware used is the GRID M60-8Q vGPU. As seen before, the MH/s rate decreases according to the Hash-Mode. The parts to be highlighted here are the rates obtained compared with the previous attempt using CPU hardware. Let’s sort them out according to the algorithm used to see it clearly:
+This time, we can see that the skipped device is the CPU and the hardware used is the *GRID M60-8Q vGPU*. As seen before, the MH/s rate decreases according to the Hash-Mode. The parts to be highlighted here are the rates obtained compared with the previous attempt using CPU hardware. Let’s sort them out according to the algorithm used to see it clearly:
 
-Algorithm
-CPU
-GPU
-GPU acceleration
-MD5
-1401.7 MH/s
-10094.1 MH/s
-720.13 %
-SHA1
-1066.0 MH/s
-4110.3 MH/s
-358.58 %
-SHA2-256
-495.1 MH/s
-1445.4 MH/s
-291.94 %
-
+| Algorithm | CPU | GPU | **GPU acceleration** |
+| --- | --- | --- | --- |
+| MD5 | 1401.7 MH/s | 10094.1 MH/s | **720.13 %** |
+| SHA1 | 1066.0 MH/s | 4110.3 MH/s | **358.58 %** |
+| SHA2-256 | 495.1 MH/s | 1445.4 MH/s | **291.94 %** |
 
 Depending on the CPU processor and the GPU card you’re using, the rates obtained can be different from mine, but we should always see a huge acceleration improvement when using the GPU. Also, it should be mentioned that the MH/s rate obtained depends on many parameters and may differ for each attempt we make. However, the values obtained should be fairly similar for each try.
 
