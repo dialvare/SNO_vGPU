@@ -85,7 +85,7 @@ NAME                                  STATUS                ROLES               
 r740.pemlab.rdu2.redhat.com           Ready                 master,worker            16d            v1.22.3+2cb6068
 ```
 
-Now, we can create the MachineConfig object to identify the kernel argument and enable the IOMMU driver. Apply a new label to indicate that this node has GPU by running the following command, we’ll tell the MachineConfig to look for nodes with this label:
+Now, we can create the MachineConfig object to identify the kernel argument and enable the IOMMU driver. Apply a new label to indicate that this node has GPU by running the following command. We’ll tell the MachineConfig to look for nodes with this label:
 
 ```
 $ oc label nodes r740.pemlab.rdu2.redhat.com hasGpu=true 
