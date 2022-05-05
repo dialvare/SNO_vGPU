@@ -30,7 +30,7 @@ The first part of the wizard will ask you for cluster details. Complete the foll
 - OpenShift version: in this case, *OpenShift 4.9.19*, the latest at time of writing.
 - Check the box *Install Single Node OpenShift (SNO)*.
 
-<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Cluster%20details.png" width="580">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Cluster%20details.png" width="550">
 
 When finished, we can jump into the host discovery section by clicking **Next**. There, be sure to check the **Install OpenShift Virtualization** box (although this can be enabled post-installation if desired) and then click the **Add hosts** button.
 
