@@ -684,7 +684,7 @@ Once the installation is complete, we can check the configuration by running the
 $ nvidia-smi
 ```
 
-<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/NVIDIA%20smi.png" width="580" >
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/NVIDIA%20smi.png" width="580">
 
 At this point, we’re seeing that everything is configured correctly. Now we can fire up our preferred applications to test the vGPU acceleration. CUDA Toolkit also provides some examples to test the GPU card. Download the Samples from the official GitHub repository [here](https://github.com/NVIDIA/cuda-samples). Run the next command:
 
