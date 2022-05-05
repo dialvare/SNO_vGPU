@@ -1,5 +1,5 @@
 # Habilitar vGPU en un Single Node usando OpenShift Virtualization
-21 de abril, 2022 | por Diego Alvarez
+por Diego Alvarez
 
 Progresivamente, gran cantidad de desarrolladores y empresas están cambiando sus modelos hacia el uso de aplicaciones basadas en contenedores y a infraestructuras sin servidores, pero todavía existe gran interés en el desarrollo y el mantenimiento de aplicaciones que corren en máquinas virtuales (VM). Red Hat OpenShift Virtualization proporciona dicha característica y permite incorporar máquinas virtuales a los flujos de trabajo mediante el uso de contenedores dentro del clúster. 
 
