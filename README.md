@@ -30,7 +30,7 @@ The first part of the wizard will ask you for cluster details. Complete the foll
 - OpenShift version: in this case, *OpenShift 4.9.19*, the latest at time of writing.
 - Check the box *Install Single Node OpenShift (SNO)*.
 
-<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Cluster%20details.png" width="580" />
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Cluster%20details.png" width="580">
 
 When finished, we can jump into the host discovery section by clicking **Next**. There, be sure to check the **Install OpenShift Virtualization** box (although this can be enabled post-installation if desired) and then click the **Add hosts** button.
 
@@ -44,7 +44,7 @@ $ cat ~/.ssh/id_rsa.pub
 
 Then, click **Generate Discovery ISO** to get the URL and the command to download the image:
 
-<img width="433" alt="Screenshot 2022-05-04 at 17 55 37" src="https://user-images.githubusercontent.com/98162884/166737661-84d67eaf-4468-4775-8128-bfef64ebed28.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Discovery%20ISO.png" width="450">
 
 Open a new terminal in the host machine and download the image by running the provided command. Once downloaded, mount the ISO image as virtual media (there are vendor specific options for this, so please seek the documentation for your respective hardware vendor) and set the host to automatically boot from that image. Then, power the system up.
 
@@ -54,7 +54,7 @@ In the Networking section, fill the **Select subnet** field by choosing the subn
 
 Single Node OpenShift installation can be monitored with the progress bar displayed. Once completed, you can spread out the installation section. There, you’ll find the *Web Console URL*, the admin user *kubeadmin* and the *password*. Access the web console by clicking on the **URL** and log in with the provided credentials. The web console Interface looks like this:
 
-<img width="1408" alt="Screenshot 2022-05-04 at 17 45 31" src="https://user-images.githubusercontent.com/98162884/166731770-f0a17ad4-5513-462e-b3ab-f43710e2f581.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Web%20console.png" width="1408">
 
 ## Install Operators
 To proceed with the configuration, two Operators from the OperatorHub in OpenShift are needed: **OpenShift Virtualization** and **Node Feature Discovery (NFD)**.
@@ -65,7 +65,7 @@ On the left side of the web console, open the **Operators** tab and click **Oper
 
 Verify the installation finished correctly by checking the **Installed Operators** section under **Operators**. You’ll see something like this: 
 
-<img width="636" alt="Screenshot 2022-05-04 at 17 57 37" src="https://user-images.githubusercontent.com/98162884/166738864-40fa8538-bac0-4ef7-8741-90e03cd08abf.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Installed%20operators.png" width="680">
 
 ## Enable IOMMU
 An input–output memory management unit (IOMMU) can be used in guest systems, such as VMs to use hardware that is not specifically made for virtualization. Graphic cards use direct memory access (DMA) to manage memory directly. In a virtual environment, all memory addresses are re-mapped by the virtual machine software, which causes DMA devices to fail. The IOMMU handles this re-mapping, allowing the guest operating system to use the native device drivers installed. 
@@ -550,7 +550,7 @@ At this point, the cluster configuration is complete and the node is ready to re
 
 Navigate again to the web console and select the **Workloads** section on the left side of the page. There, select the **Virtualization** option. Then, you’ll see different tabs. Click on **Virtual Machines** and select **Create Virtual Machine**. Different operating systems will be shown. In this case, select **Fedora 33+ VM** and then click **Next**.
 
-<img width="246" alt="Screenshot 2022-05-05 at 09 01 51" src="https://user-images.githubusercontent.com/98162884/166883648-8e651a7b-2497-49ca-90f0-371c4ca8cb53.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/VM%20wizard.png" width="260">
 
 In the boot source section, at the bottom, select **Customize Virtual Machine**. Complete the following fields and then advance to the next sections by clicking **Next**:
 - Name: write your preferred name for the virtual machine.
@@ -567,7 +567,7 @@ In the boot source section, at the bottom, select **Customize Virtual Machine**.
 
 Check if everything is properly configured and then click **Create Virtual Machine**. The VM provisioning will start. Select **See virtual machine details** to follow the VM deployment. Wait a few minutes until you see *Status: Running*:
 
-<img width="634" alt="Screenshot 2022-05-05 at 09 06 10" src="https://user-images.githubusercontent.com/98162884/166884443-ae9960c1-ac4b-437b-9cfd-725b9dc8911d.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/VM%20installed.png" width="800">
 
 Before accessing the VM we need to add the statements needed for passing the vGPU configured. Click on the VM name (in my case **fedora**) and you’ll see some information and graphics about the virtual machine status. Navigate to the **YAML** tab and add the following commands in the *devices* resource:
 
@@ -582,7 +582,7 @@ When added, click the **Save** button and then **Reload**. To apply the new devi
 
 Now, we can access the virtual machine from the OpenShift web console or from our terminal using *ssh*. We’re going to use this second option. Navigate to the **Details** tab. Scroll down to the *User Credentials* part and you’ll find something similar to this:
 
-<img width="320" alt="Screenshot 2022-05-05 at 09 09 25" src="https://user-images.githubusercontent.com/98162884/166884877-badabdfb-2b60-4c7e-83f6-7ea0ead5d33e.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/User%20credentials.png" width="380">
 
 Copy the *ssh* command provided, paste it into your terminal window, and you’ll be connected to the *fedora* virtual machine; this relies on simple nodeport access:
 
@@ -634,11 +634,11 @@ Now, we can start with the driver installation. Run the GRID driver file:
 
 The installation screen will be shown, asking to register the kernel with DKMS. Select **Yes**:
 
-<img width="626" alt="Screenshot 2022-05-05 at 09 10 37" src="https://user-images.githubusercontent.com/98162884/166885071-df146ab2-5d39-4e16-8729-aba7932e6d69.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Driver%20installation%201.png" width="626">
 
 When the DKMS kernel module installation finishes, we’ll see the next screen. Select **Yes** too:
 
-<img width="626" alt="Screenshot 2022-05-05 at 09 11 56" src="https://user-images.githubusercontent.com/98162884/166885221-49afd185-7b4a-4a4a-a75c-d7949bd06225.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Driver%20installation%202.png" width="626">
 
 The installation process will continue. When finished, select **No** when asked about allowing automatic *Xorg* backup. We’re not going to use it for this demo. Once the installation is complete, select **OK** to proceed. Then, reboot the virtual machine again to apply the changes:
 
@@ -660,11 +660,11 @@ $ sudo sh cuda_11.6.2_510.47.03_linux.run
 
 You will see the Toolkit License Agreement window. Write **accept**:
 
-<img width="413" alt="Screenshot 2022-05-05 at 09 14 04" src="https://user-images.githubusercontent.com/98162884/166885498-853b4ebf-3a57-4129-9b2c-f75a824c047c.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/License%20agreement.png" width="580">
 
 **Important**: The CUDA installation will automatically opt to install the NVIDIA driver, but this will be the non-GRID driver, which is not what we need, and will likely break the installation if we proceed with it. In a previous step we installed the correct GRID driver and therefore it’s already installed and loaded, so we need to **uncheck** the *Driver* box. Then navigate to the **Install** option:
 
-<img width="394" alt="Screenshot 2022-05-05 at 09 14 55" src="https://user-images.githubusercontent.com/98162884/166885629-d466a235-3e49-448c-a9ed-0eb34a433c72.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Driver%20uncheck.png" width="580">
 
 When finished, make sure that the variables *$PATH* includes */usr/local/cuda-11.6/bin* and *$LD_LIBRARY_PATH* includes */usr/local/cuda-11.6/lib64*. Run the following commands:
 
@@ -684,7 +684,7 @@ Once the installation is complete, we can check the configuration by running the
 $ nvidia-smi
 ```
 
-<img width="445" alt="Screenshot 2022-05-05 at 09 15 37" src="https://user-images.githubusercontent.com/98162884/166885735-60bee2f1-be76-4107-997d-a17423de822d.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/NVIDIA%20smi.png" width="580" >
 
 At this point, we’re seeing that everything is configured correctly. Now we can fire up our preferred applications to test the vGPU acceleration. CUDA Toolkit also provides some examples to test the GPU card. Download the Samples from the official GitHub repository [here](https://github.com/NVIDIA/cuda-samples). Run the next command:
 
