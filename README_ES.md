@@ -30,7 +30,7 @@ Durante la primera fase del asistente, se pueden definir algunas de las especifi
 - OpenShift version: en este caso, *OpenShift 4.9.19*, la última disponible en el momento que se está escribiendo este blog.
 - Seleccionar la casilla *Install Single OpenShift (SNO)*.
 
-<img width="580" alt="Screenshot 2022-05-04 at 17 49 50" src="https://user-images.githubusercontent.com/98162884/166734230-fb96bd4b-0b6e-448e-945a-ef8b62b19e66.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Cluster%20details.png" width="550">
 
 Una vez completado, podremos saltar a la sección Host Discovery pulsando **Next**. En esta página habrá que asegurarse que la casilla **Install OpenShift Virtualization** está seleccionada (aunque esta característica puede ser habilitada tras la instalación, si se prefiere) y entonces haremos clic en el botón **Add hosts**.
 
@@ -44,7 +44,7 @@ $ cat ~/.ssh/id_rsa.pub
 
 Una vez completado, seleccionamos **Generate Discovery ISO** para obtener la URL de la imagen y el comando para descargarla:
 
-<img width="433" alt="Screenshot 2022-05-04 at 17 55 37" src="https://user-images.githubusercontent.com/98162884/166737661-84d67eaf-4468-4775-8128-bfef64ebed28.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Discovery%20ISO.png" width="450">
 
 Abrimos un terminal nuevo en nuestra máquina y descargamos la imagen ejecutando el comando bajo **Command to download the ISO**. Una vez descargado, montamos la imagen ISO como virtual media  y configuraremos la máquina para arrancar automáticamente haciendo uso de dicha imagen. Para finalizar, reiniciamos la máquina. 
 
@@ -54,7 +54,7 @@ En la sección Networking, rellenamos el campo **Select subnet** eligiendo la su
 
 La instalación del Single Node OpenShift puede ser monitorizada mediante la barra de progreso que aparece en la pantalla. Una vez completada, podemos desplegar la sección en la que se encuentra la barra de instalación y encontraremos la *URL* a la consola web, el usuario de administración *kubeadmin* y su *contraseña*. Accederemos a la consola web a través de la **URL** proporcionada y nos acreditaremos utilizando el usuario y la contraseña mencionados anteriormente. La interfaz de la consola web se presenta de la siguiente manera:
 
-<img width="1408" alt="Screenshot 2022-05-04 at 17 45 31" src="https://user-images.githubusercontent.com/98162884/166731770-f0a17ad4-5513-462e-b3ab-f43710e2f581.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Web%20console.png" width="1408">
 
 ## Instalación de Operadores
 Antes de continuar con la configuración, es necesario instalar dos operadores desde OperatorHub en OpenShift: el de **OpenShift Virtualization** y **Node Feature Discovery (NFD)**.
@@ -65,7 +65,7 @@ En la parte izquierda de la consola web, desplegamos la pestaña **Operators** y
 
 Para verificar si la instalación acabó correctamente, navegaremos hasta el apartado **Installed Operators** bajo la pestaña **Operators**. Deberíamos encontrar lo siguiente:
 
-<img width="636" alt="Screenshot 2022-05-04 at 17 57 37" src="https://user-images.githubusercontent.com/98162884/166738864-40fa8538-bac0-4ef7-8741-90e03cd08abf.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Installed%20operators.png" width="680">
 
 ## Habilitar IOMMU
 La unidad de gestión de memoria de entrada/salida (IOMMU) puede ser utilizada en sistemas guest (como es el caso de VMs) para utilizar hardware que no está diseñado específicamente para virtualización. Las tarjetas gráficas hacen uso de acceso directo a memoria (DMA) para gestionar la memoria directamente. En un entorno virtual, todas las direcciones de memoria son mapeadas por el software de la máquina virtual, lo que provoca que DMA falle. El IOMMU es capaz de gestionar este mapeo, permitiendo al sistema operativo del guest usar los controladores de dispositivos instalados. 
@@ -550,7 +550,7 @@ En este punto, la configuración del clúster está completa y el nodo está pre
 
 Dentro de la consola web, seleccionamos la sección **Workloads** en el lado izquierdo de la página. En el desplegable, seleccionamos la opción **Virtualization**. Se nos mostrarán diferentes pestañas. Haremos clic en **Virtual Machines** y seleccionamos **Create Virtual Machine**. Aparecerán diferentes opciones para el sistema operativo a instalar. En este caso seleccionaremos **Fedora 33+ VM** y pulsaremos en el botón **Next**.
 
-<img width="246" alt="Screenshot 2022-05-05 at 09 01 51" src="https://user-images.githubusercontent.com/98162884/166883648-8e651a7b-2497-49ca-90f0-371c4ca8cb53.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/VM%20wizard.png" width="260">
 
 Una vez entremos en la sección Boot Source, en la parte inferior seleccionamos **Customize Virtual Machine**. Completa los siguientes campos y avanza entre las diferentes secciones con el botón **Next**:
 - Name: indica el nombre preferido para la máquina virtual.
@@ -567,7 +567,7 @@ Una vez entremos en la sección Boot Source, en la parte inferior seleccionamos 
 
 Comprobamos si aparecen los campos completados correctamente y hacemos clic en **Create Virtual Machine**. El aprovisionamiento de la máquina virtual comenzará y se podrá seguir al seleccionar **See virtual machine details**. Tras la instalación, observaremos *Status: Running*.
 
-<img width="634" alt="Screenshot 2022-05-05 at 09 06 10" src="https://user-images.githubusercontent.com/98162884/166884443-ae9960c1-ac4b-437b-9cfd-725b9dc8911d.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/VM%20installed.png" width="800">
 
 Antes de acceder a la máquina virtual, tendremos que añadir las líneas de código necesarias para pasar la vGPU que hemos configurado. Seleccionamos el nombre de la máquina virtual (en mi caso **fedora**) y se desplegará una pestaña con información y gráficos sobre el estado de la máquina. Navegaremos a la pestaña **YAML** y añadimos las siguientes líneas en el recurso *devices*:
 
@@ -582,7 +582,7 @@ Una vez añadidas, pulsa sobre el botón **Save** y a continuación sobre **Relo
 
 Ahora, ya podemos acceder a la máquina virtual desde la consola web de OpenShift o desde nuestro terminal. Vamos a optar por la segunda opción y nos conectaremos con *ssh*. Para ello, tendremos que acceder a la pestaña **Details** y bajar hasta la sección *User Credentials* donde encontraremos un apartado similar al siguiente:
 
-<img width="320" alt="Screenshot 2022-05-05 at 09 09 25" src="https://user-images.githubusercontent.com/98162884/166884877-badabdfb-2b60-4c7e-83f6-7ea0ead5d33e.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/User%20credentials.png" width="380">
 
 Copia el comando *ssh* que se proporciona y pégalo en la ventana de tu terminal. De esta forma, nos habremos conectado a la máquina virtual *fedora*:
 
@@ -634,11 +634,11 @@ En este punto, podemos empezar con la instalación de los controladores. Ejecuta
 
 Aparecerá la pantalla de instalación preguntando si se quiere registrar el kernel con DKMS. Seleccionaremos **Yes**:
 
-<img width="626" alt="Screenshot 2022-05-05 at 09 10 37" src="https://user-images.githubusercontent.com/98162884/166885071-df146ab2-5d39-4e16-8729-aba7932e6d69.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Driver%20installation%201.png" width="626">
 
 Cuando finalice la instalación del módulo DKMS, veremos la siguiente pantalla. Seleccionamos **Yes** también:
 
-<img width="626" alt="Screenshot 2022-05-05 at 09 11 56" src="https://user-images.githubusercontent.com/98162884/166885221-49afd185-7b4a-4a4a-a75c-d7949bd06225.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Driver%20installation%202.png" width="626">
 
 El proceso de instalación continuará. Una vez acabado se nos preguntará si queremos permitir la copia de seguridad automática para *Xorg*. Seleccionamos **No**, ya que no vamos a utilizar dicha característica. Una vez completada la instalación, seleccionamos **OK** para finalizar y reiniciamos la máquina virtual para aplicar los cambios. 
 
@@ -660,11 +660,11 @@ $ sudo sh cuda_11.6.2_510.47.03_linux.run
 
 Veremos la ventana de Acuerdo de Licencia de Toolkit. Escribimos **accept**:
 
-<img width="413" alt="Screenshot 2022-05-05 at 09 14 04" src="https://user-images.githubusercontent.com/98162884/166885498-853b4ebf-3a57-4129-9b2c-f75a824c047c.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/License%20agreement.png" width="580">
 
 **Importante**: El instalador de CUDA intentará instalar automáticamente el controlador de NVIDIA, pero por defecto elige la versión que no es GRID. Esto puede dañar la instalación si proseguimos adelante con ello. En los pasos anteriores ya instalamos la versión correcta del controlador GRID, por lo que debemos **desmarcar** la casilla *Driver* para evitar instalarlos. Por último, nos desplazamos hasta la opción **Install**:
 
-<img width="394" alt="Screenshot 2022-05-05 at 09 14 55" src="https://user-images.githubusercontent.com/98162884/166885629-d466a235-3e49-448c-a9ed-0eb34a433c72.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Driver%20uncheck.png" width="580">
 
 Una vez finalice, debemos asegurarnos de que la variable *$PATH* incluye la ruta */usr/local/cuda-11.6/bin* y la variable *$LD_LIBRARY_PATH* incluye */usr/local/cuda-11.6/lib64*. Para ello, ejecuta los siguientes comandos:
 
@@ -684,7 +684,7 @@ Una vez finalizada la instalación, podremos verificar si la configuración ha s
 $ nvidia-smi
 ```
 
-<img width="445" alt="Screenshot 2022-05-05 at 09 15 37" src="https://user-images.githubusercontent.com/98162884/166885735-60bee2f1-be76-4107-997d-a17423de822d.png">
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/NVIDIA%20smi.png" width="580">
 
 En este punto, podemos confirmar que la instalación está completa y todo está configurado correctamente. Ya podemos lanzar cualquiera de las aplicaciones para probar la aceleración de la vGPU. Para ello utilizaremos CUDA Toolkit, el cual proporciona algunos ejemplos para probar la tarjeta GPU. Descargaremos los Samples desde el [repositorio de GitHub](https://github.com/NVIDIA/cuda-samples) oficial. Ejecuta el siguiente comando: 
 
