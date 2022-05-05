@@ -36,7 +36,7 @@ When finished, we can jump into the host discovery section by clicking **Next**.
 
 The purpose of this step is to generate a discovery ISO to boot the node and install OpenShift there. There are two different options. If you want to boot the host from a USB drive or PXE, select **Full image file**. Otherwise, to boot using virtual media select **Minimal image file** (note that your node will require internet access). We’ll use the second option. 
 
-Finally, paste your **SSH public key**, which is used to ssh to deployed nodes. It is typically stored in the *.ssh* folder of your home directory and ends in *.pub*. In this case the corresponding file would be: *~/.ssh/id_rsa.pub*. You can get the key by running this command in your terminal:
+Finally, paste your **SSH public key**, which is used to *ssh* to deployed nodes. It is typically stored in the *.ssh* folder of your home directory and ends in *.pub*. In this case the corresponding file would be: *~/.ssh/id_rsa.pub*. You can get the key by running this command in your terminal:
 
 ```
 $ cat ~/.ssh/id_rsa.pub
