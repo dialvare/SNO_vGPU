@@ -567,6 +567,8 @@ In the boot source section, at the bottom, select **Customize Virtual Machine**.
 
 Check if everything is properly configured and then click **Create Virtual Machine**. The VM provisioning will start. Select **See virtual machine details** to follow the VM deployment. Wait a few minutes until you see *Status: Running*:
 
+<img width="634" alt="Screenshot 2022-05-05 at 09 06 10" src="https://user-images.githubusercontent.com/98162884/166884443-ae9960c1-ac4b-437b-9cfd-725b9dc8911d.png">
+
 Before accessing the VM we need to add the statements needed for passing the vGPU configured. Click on the VM name (in my case **fedora**) and you’ll see some information and graphics about the virtual machine status. Navigate to the **YAML** tab and add the following commands in the *devices* resource:
 
 ```
@@ -579,6 +581,8 @@ devices:
 When added, click the **Save** button and then **Reload**. To apply the new device configuration, in the upper-right corner, deploy the **Actions** section and select **Start Virtual Machine**.
 
 Now, we can access the virtual machine from the OpenShift web console or from our terminal using *ssh*. We’re going to use this second option. Navigate to the **Details** tab. Scroll down to the *User Credentials* part and you’ll find something similar to this:
+
+<img width="320" alt="Screenshot 2022-05-05 at 09 09 25" src="https://user-images.githubusercontent.com/98162884/166884877-badabdfb-2b60-4c7e-83f6-7ea0ead5d33e.png">
 
 Copy the *ssh* command provided, paste it into your terminal window, and you’ll be connected to the *fedora* virtual machine; this relies on simple nodeport access:
 
@@ -630,7 +634,11 @@ Now, we can start with the driver installation. Run the GRID driver file:
 
 The installation screen will be shown, asking to register the kernel with DKMS. Select **Yes**:
 
+<img width="626" alt="Screenshot 2022-05-05 at 09 10 37" src="https://user-images.githubusercontent.com/98162884/166885071-df146ab2-5d39-4e16-8729-aba7932e6d69.png">
+
 When the DKMS kernel module installation finishes, we’ll see the next screen. Select **Yes** too:
+
+<img width="626" alt="Screenshot 2022-05-05 at 09 11 56" src="https://user-images.githubusercontent.com/98162884/166885221-49afd185-7b4a-4a4a-a75c-d7949bd06225.png">
 
 The installation process will continue. When finished, select **No** when asked about allowing automatic *Xorg* backup. We’re not going to use it for this demo. Once the installation is complete, select **OK** to proceed. Then, reboot the virtual machine again to apply the changes:
 
@@ -652,7 +660,11 @@ $ sudo sh cuda_11.6.2_510.47.03_linux.run
 
 You will see the Toolkit License Agreement window. Write **accept**:
 
+<img width="413" alt="Screenshot 2022-05-05 at 09 14 04" src="https://user-images.githubusercontent.com/98162884/166885498-853b4ebf-3a57-4129-9b2c-f75a824c047c.png">
+
 **Important**: The CUDA installation will automatically opt to install the NVIDIA driver, but this will be the non-GRID driver, which is not what we need, and will likely break the installation if we proceed with it. In a previous step we installed the correct GRID driver and therefore it’s already installed and loaded, so we need to **uncheck** the *Driver* box. Then navigate to the **Install** option:
+
+<img width="394" alt="Screenshot 2022-05-05 at 09 14 55" src="https://user-images.githubusercontent.com/98162884/166885629-d466a235-3e49-448c-a9ed-0eb34a433c72.png">
 
 When finished, make sure that the variables *$PATH* includes */usr/local/cuda-11.6/bin* and *$LD_LIBRARY_PATH* includes */usr/local/cuda-11.6/lib64*. Run the following commands:
 
@@ -672,6 +684,7 @@ Once the installation is complete, we can check the configuration by running the
 $ nvidia-smi
 ```
 
+<img width="445" alt="Screenshot 2022-05-05 at 09 15 37" src="https://user-images.githubusercontent.com/98162884/166885735-60bee2f1-be76-4107-997d-a17423de822d.png">
 
 At this point, we’re seeing that everything is configured correctly. Now we can fire up our preferred applications to test the vGPU acceleration. CUDA Toolkit also provides some examples to test the GPU card. Download the Samples from the official GitHub repository [here](https://github.com/NVIDIA/cuda-samples).  Run the next command:
 
