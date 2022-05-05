@@ -1,5 +1,5 @@
 # Enabling vGPU in a Single Node using OpenShift Virtualization
-April 21, 2022 | by Diego Alvarez
+by Diego Alvarez
 
 Many developers and organizations are shifting to containerized applications and serverless infrastructure, but there is still huge interest in developing and maintaining applications running as VMs. Red Hat OpenShift Virtualization provides that ability and allows organizations to bring VMs into containerized workflows inside clusters.
 
