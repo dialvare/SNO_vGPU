@@ -36,7 +36,7 @@ When finished, we can jump into the host discovery section by clicking **Next**.
 
 The purpose of this step is to generate a discovery ISO to boot the node and install OpenShift there. There are two different options. If you want to boot the host from a USB drive or PXE, select **Full image file**. Otherwise, to boot using virtual media select **Minimal image file** (note that your node will require internet access). We’ll use the second option. 
 
-Finally, paste your **SSH public key**, which is used to ssh to deployed nodes. It is typically stored in the .ssh folder of your home directory and ends in .pub. In this case the corresponding file would be: *~/.ssh/id_rsa.pub*. You can get the key by running this command in your terminal:
+Finally, paste your **SSH public key**, which is used to ssh to deployed nodes. It is typically stored in the *.ssh* folder of your home directory and ends in *.pub*. In this case the corresponding file would be: *~/.ssh/id_rsa.pub*. You can get the key by running this command in your terminal:
 
 ```
 $ cat ~/.ssh/id_rsa.pub
@@ -278,6 +278,7 @@ Containerfile	               entrypoint.sh                         NVIDIA-Linux-
 ```
 
 Now that we have all the files, we can build the driver container image by running:
+
 ```
 $ podman build --build-arg NVIDIA_INSTALLER_BINARY=NVIDIA-Linux-x86_64-510.47.03-vgpu-kvm.run -t ocp-nvidia-vgpu-installer .
 
@@ -410,7 +411,6 @@ spec:
               command: ["/bin/sh", "-c", "systemctl stop kmods-via-containers@simple-kmod"]
         securityContext:
           privileged: true
-
           allowedCapabilities:
           - '*'
           capabilities:
@@ -619,7 +619,7 @@ Once installed all needed libraries, disable the *nouveau* driver permanently, m
 # reboot
 ```
 
-Access to the VM again and run the following command to stop the Xorg server (if it was running) and switch to text mode:
+Access to the VM again and run the following command to stop the *Xorg* server (if it was running) and switch to text mode:
 
 ```
 $ sudo -i
@@ -686,7 +686,7 @@ $ nvidia-smi
 
 <img width="445" alt="Screenshot 2022-05-05 at 09 15 37" src="https://user-images.githubusercontent.com/98162884/166885735-60bee2f1-be76-4107-997d-a17423de822d.png">
 
-At this point, we’re seeing that everything is configured correctly. Now we can fire up our preferred applications to test the vGPU acceleration. CUDA Toolkit also provides some examples to test the GPU card. Download the Samples from the official GitHub repository [here](https://github.com/NVIDIA/cuda-samples).  Run the next command:
+At this point, we’re seeing that everything is configured correctly. Now we can fire up our preferred applications to test the vGPU acceleration. CUDA Toolkit also provides some examples to test the GPU card. Download the Samples from the official GitHub repository [here](https://github.com/NVIDIA/cuda-samples). Run the next command:
 
 ```
 $ git clone https://github.com/NVIDIA/cuda-samples.git
@@ -718,7 +718,7 @@ $ ./deviceQuery
 
 ./deviceQuery Starting...
 
- CUDA Device Query (Runtime API) version (CUDART static linking)
+CUDA Device Query (Runtime API) version (CUDART static linking)
 
 Detected 1 CUDA Capable device(s)
 
