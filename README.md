@@ -550,6 +550,8 @@ At this point, the cluster configuration is complete and the node is ready to re
 
 Navigate again to the web console and select the **Workloads** section on the left side of the page. There, select the **Virtualization** option. Then, you’ll see different tabs. Click on **Virtual Machines** and select **Create Virtual Machine**. Different operating systems will be shown. In this case, select **Fedora 33+ VM** and then click **Next**.
 
+<img width="246" alt="Screenshot 2022-05-05 at 09 01 51" src="https://user-images.githubusercontent.com/98162884/166883648-8e651a7b-2497-49ca-90f0-371c4ca8cb53.png">
+
 In the boot source section, at the bottom, select **Customize Virtual Machine**. Complete the following fields and then advance to the next sections by clicking **Next**:
 - Name: write your preferred name for the virtual machine.
 - Boot Source: select *Import via URL (creates PVC)*.
