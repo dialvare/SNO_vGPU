@@ -3,7 +3,7 @@ por Diego Alvarez
 
 <img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Header%20image.png" width="700" height="350">
 
-Progresivamente, gran cantidad de desarrolladores y empresas están cambiando sus modelos hacia el uso de aplicaciones basadas en contenedores y a infraestructuras sin servidores, pero todavía existe gran interés en el desarrollo y el mantenimiento de aplicaciones que corren en máquinas virtuales (VM). Red Hat OpenShift Virtualization proporciona dicha característica y permite incorporar máquinas virtuales a los flujos de trabajo mediante el uso de contenedores dentro del clúster. 
+Gran cantidad de desarrolladores y empresas están cambiando sus modelos hacia el uso de aplicaciones basadas en contenedores y a infraestructuras sin servidores, pero todavía existe gran interés en el desarrollo y el mantenimiento de aplicaciones que corren en máquinas virtuales (VM). Red Hat OpenShift Virtualization proporciona dicha característica y permite incorporar máquinas virtuales a los flujos de trabajo mediante el uso de contenedores dentro del clúster. 
 
 Además, el uso de tarjetas gráficas de procesamiento (GPU) en máquinas de trabajo es cada vez más popular. Las GPUs son potentes dispositivos diseñados para gestionar fuertes cargas de trabajo como el procesamiento de grandes volúmenes de datos, inteligencia artificial y aprendizaje máquina; además de exigentes tareas de procesamiento gráfico. Como resultado, las GPUs proporcionan grandes beneficios en términos de aceleración y mejoran drásticamente el rendimiento que podríamos obtener en caso de utilizar únicamente la unidad central de procesamiento CPU. OpenShift permite el uso de PCI para acceder y usar tarjetas gráficas dentro de máquinas virtuales. 
 
