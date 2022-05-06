@@ -1,6 +1,8 @@
 # Enabling vGPU in a Single Node using OpenShift Virtualization
 by Diego Alvarez
 
+<img src="https://github.com/dialvare/SingleNode-vGPU-blog/blob/main/Header%20image.png" width="700" height="350">
+
 Many developers and organizations are shifting to containerized applications and serverless infrastructure, but there is still huge interest in developing and maintaining applications running as VMs. Red Hat OpenShift Virtualization provides that ability and allows organizations to bring VMs into containerized workflows inside clusters.
 
 Additionally, GPUs in workstations are becoming increasingly popular. GPUs are powerful devices designed to deal with compute-heavy workloads like processing large amounts of data, such as AI/ML, in addition to graphics-intensive tasks. They provide notorious acceleration benefits and drastically improve the performance that we can obtain by just relying on the central processing unit CPU itself. OpenShift allows the use of PCI passthrough to access and use GPU hardware inside a VM. 
